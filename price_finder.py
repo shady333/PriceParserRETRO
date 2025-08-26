@@ -269,7 +269,7 @@ def update_csv(data, output_file, current_date):
 
 # Обхід сторінок
 page = 1
-max_pages = 106  # Для тестування, змініть на 106 для повного парсингу
+max_pages = 10  # Для тестування, змініть на 106 для повного парсингу
 while page <= max_pages:
     if not scrape_page(page, skip_premium, skip_rlc, skip_super_treasure_hunt, skip_diorama, skip_matchbox,
                        skip_treasure_hunts, skip_team_transport):

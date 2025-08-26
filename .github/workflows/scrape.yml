@@ -23,7 +23,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run scrape script
-        run: python scrape.py
+        run: python price_finder.py
 
       - name: Commit and push changes
         run: |

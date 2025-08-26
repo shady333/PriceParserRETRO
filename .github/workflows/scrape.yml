@@ -5,6 +5,9 @@ on:
     - cron: '0 12 */3 * *'
   workflow_dispatch:
 
+permissions:
+  contents: write  # Додано для дозволу запису
+
 jobs:
   scrape:
     runs-on: ubuntu-latest
@@ -15,7 +18,7 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'  # Змінено з 3.10 на 3.11
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |

@@ -2,34 +2,29 @@ name: Scrape and Update CSV
 
 on:
   schedule:
-    - cron: '0 12 */3 * *'  # Запуск кожні 3 дні о 12:00 UTC
-  workflow_dispatch:         # Дозволяє запускати вручну
+    - cron: '0 12 */3 * *'
+  workflow_dispatch:
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
     steps:
-      # Крок 1: Клонування репозиторію
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Крок 2: Налаштування Python
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'  # Версія Python
+          python-version: '3.11'  # Змінено з 3.10 на 3.11
 
-      # Крок 3: Встановлення залежностей
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Крок 4: Запуск скрипта
       - name: Run scrape script
         run: python scrape.py
 
-      # Крок 5: Коміт і пуш змін до CSV
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"

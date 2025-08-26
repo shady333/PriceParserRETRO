@@ -21,75 +21,72 @@
 
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script>
-        function searchCar() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase().replace(/"/g, '');
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = 'Завантаження...';
+      function searchCar() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().replace(/"/g, '');
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = 'Завантаження...';
 
-            // Завантаження CSV з GitHub
-            Papa.parse('https://raw.githubusercontent.com/ВАШ_КОРИСТУВАЧ/ВАШ_РЕПОЗИТОРІЙ/main/data/car_prices.csv', {
-                download: true,
-                header: true,
-                complete: function(results) {
-                    const data = results.data;
-                    const found = data.find(row => 
-                        row.car_name && row.car_name.toLowerCase().replace(/"/g, '').includes(searchTerm)
-                    );
+        Papa.parse('https://raw.githubusercontent.com/shady333/PriceParserRETRO/main/car_prices.csv', {
+          download: true,
+          header: true,
+          complete: function(results) {
+            console.log('CSV data loaded:', results.data);
+            const data = results.data;
+            const matches = data.filter(row => 
+              row.car_name && row.car_name.toLowerCase().replace(/"/g, '').includes(searchTerm)
+            );
 
-                    if (found) {
-                        // Знаходимо останню ціну та дату
-                        let lastPrice = null;
-                        let lastDate = null;
-                        for (const key in found) {
-                            if (key !== 'category' && key !== 'car_name' && found[key] && !isNaN(found[key])) {
-                                if (!lastDate || key > lastDate) {
-                                    lastPrice = parseFloat(found[key]);
-                                    lastDate = key;
-                                }
-                            }
-                        }
-
-                        // Обчислюємо тренд цін
-                        let trend = '';
-                        const prices = [];
-                        for (const key in found) {
-                            if (key !== 'category' && key !== 'car_name' && found[key] && !isNaN(found[key])) {
-                                prices.push({ date: key, price: parseFloat(found[key]) });
-                            }
-                        }
-                        prices.sort((a, b) => new Date(a.date) - new Date(b.date));
-                        if (prices.length >= 2) {
-                            const lastTwo = prices.slice(-2);
-                            if (lastTwo[1].price > lastTwo[0].price) {
-                                trend = '📈 Зростання';
-                            } else if (lastTwo[1].price < lastTwo[0].price) {
-                                trend = '📉 Падіння';
-                            } else {
-                                trend = '➖ Без змін';
-                            }
-                        } else {
-                            trend = 'Недостатньо даних для тренду';
-                        }
-
-                        // Виведення результату
-                        resultDiv.innerHTML = `
-                            <h3>Знайдено: ${found.car_name}</h3>
-                            <table>
-                                <tr><th>Категорія</th><td>${found.category}</td></tr>
-                                <tr><th>Остання ціна</th><td>${lastPrice} грн</td></tr>
-                                <tr><th>Дата</th><td>${lastDate}</td></tr>
-                                <tr><th>Тренд цін</th><td>${trend}</td></tr>
-                            </table>
-                        `;
-                    } else {
-                        resultDiv.innerHTML = 'Машинку не знайдено';
+            if (matches.length > 0) {
+              let output = '<h3>Знайдені машинки:</h3><table><tr><th>Назва</th><th>Остання ціна (грн)</th><th>Дата</th></tr>';
+              matches.forEach(match => {
+                let lastPrice = null;
+                let lastDate = null;
+                for (const key in match) {
+                  if (key !== 'category' && key !== 'car_name' && match[key] && !isNaN(match[key])) {
+                    if (!lastDate || key > lastDate) {
+                      lastPrice = parseFloat(match[key]);
+                      lastDate = key;
                     }
-                },
-                error: function(error) {
-                    resultDiv.innerHTML = 'Помилка завантаження CSV: ' + error;
+                  }
                 }
-            });
-        }
+                output += `<tr><td>${match.car_name}</td><td>${lastPrice || 'N/A'}</td><td>${lastDate || 'N/A'}</td></tr>`;
+              });
+              output += '</table>';
+
+              // Якщо тільки одне співпадіння, додаємо мінімальну, максимальну ціни та їхні дати
+              if (matches.length === 1) {
+                const pricesWithDates = [];
+                for (const key in matches[0]) {
+                  if (key !== 'category' && key !== 'car_name' && matches[0][key] && !isNaN(matches[0][key])) {
+                    pricesWithDates.push({ date: key, price: parseFloat(matches[0][key]) });
+                  }
+                }
+                if (pricesWithDates.length > 0) {
+                  const lastPriceEntry = pricesWithDates.reduce((max, current) => max.date > current.date ? max : current);
+                  const minPriceEntry = pricesWithDates.reduce((min, current) => min.price < current.price ? min : current);
+                  const maxPriceEntry = pricesWithDates.reduce((max, current) => max.price > current.price ? max : current);
+
+                  output += `
+                    <p><strong>Остання ціна:</strong> ${lastPriceEntry.price} грн (дата: ${lastPriceEntry.date})</p>
+                    <p><strong>Мінімальна ціна:</strong> ${minPriceEntry.price} грн (дата: ${minPriceEntry.date})</p>
+                    <p><strong>Максимальна ціна:</strong> ${maxPriceEntry.price} грн (дата: ${maxPriceEntry.date})</p>
+                  `;
+                } else {
+                  output += '<p>Немає даних для мінімальної та максимальної цін.</p>';
+                }
+              }
+
+              resultDiv.innerHTML = output;
+            } else {
+              resultDiv.innerHTML = 'Машинку не знайдено';
+            }
+          },
+          error: function(error) {
+            console.error('Error loading CSV:', error);
+            resultDiv.innerHTML = 'Помилка завантаження CSV: ' + error.message;
+          }
+        });
+      }
     </script>
 </body>
 </html>

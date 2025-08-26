@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Пошук цін на машинки</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        input { padding: 10px; width: 300px; }
+        button { padding: 10px; }
+        #result { margin-top: 20px; }
+        table { border-collapse: collapse; width: 100%; max-width: 600px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h2>Пошук цін на машинки</h2>
+    <input type="text" id="searchInput" placeholder="Введіть назву машинки">
+    <button onclick="searchCar()">Шукати</button>
+    <div id="result"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script>
+        function searchCar() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().replace(/"/g, '');
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Завантаження...';
+
+            // Завантаження CSV з GitHub
+            Papa.parse('https://raw.githubusercontent.com/ВАШ_КОРИСТУВАЧ/ВАШ_РЕПОЗИТОРІЙ/main/data/car_prices.csv', {
+                download: true,
+                header: true,
+                complete: function(results) {
+                    const data = results.data;
+                    const found = data.find(row => 
+                        row.car_name && row.car_name.toLowerCase().replace(/"/g, '').includes(searchTerm)
+                    );
+
+                    if (found) {
+                        // Знаходимо останню ціну та дату
+                        let lastPrice = null;
+                        let lastDate = null;
+                        for (const key in found) {
+                            if (key !== 'category' && key !== 'car_name' && found[key] && !isNaN(found[key])) {
+                                if (!lastDate || key > lastDate) {
+                                    lastPrice = parseFloat(found[key]);
+                                    lastDate = key;
+                                }
+                            }
+                        }
+
+                        // Обчислюємо тренд цін
+                        let trend = '';
+                        const prices = [];
+                        for (const key in found) {
+                            if (key !== 'category' && key !== 'car_name' && found[key] && !isNaN(found[key])) {
+                                prices.push({ date: key, price: parseFloat(found[key]) });
+                            }
+                        }
+                        prices.sort((a, b) => new Date(a.date) - new Date(b.date));
+                        if (prices.length >= 2) {
+                            const lastTwo = prices.slice(-2);
+                            if (lastTwo[1].price > lastTwo[0].price) {
+                                trend = '📈 Зростання';
+                            } else if (lastTwo[1].price < lastTwo[0].price) {
+                                trend = '📉 Падіння';
+                            } else {
+                                trend = '➖ Без змін';
+                            }
+                        } else {
+                            trend = 'Недостатньо даних для тренду';
+                        }
+
+                        // Виведення результату
+                        resultDiv.innerHTML = `
+                            <h3>Знайдено: ${found.car_name}</h3>
+                            <table>
+                                <tr><th>Категорія</th><td>${found.category}</td></tr>
+                                <tr><th>Остання ціна</th><td>${lastPrice} грн</td></tr>
+                                <tr><th>Дата</th><td>${lastDate}</td></tr>
+                                <tr><th>Тренд цін</th><td>${trend}</td></tr>
+                            </table>
+                        `;
+                    } else {
+                        resultDiv.innerHTML = 'Машинку не знайдено';
+                    }
+                },
+                error: function(error) {
+                    resultDiv.innerHTML = 'Помилка завантаження CSV: ' + error;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -24,10 +24,10 @@ PRICE_THRESHOLDS = {
     'rlc': 2000,
     'super_treasure_hunt': 1500,
     'diorama': 1000,
-    'matchbox': 150,
+    'matchbox': 120,
     'treasure_hunts': 150,
     'team_transport': 800,
-    'mainline': 150
+    'mainline': 120
 }
 PAGES_PER_DAY = 40  # Кількість сторінок за день
 SAVE_INTERVAL = 5  # Зберігати CSV кожні 5 сторінок

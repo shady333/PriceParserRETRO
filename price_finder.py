@@ -11,7 +11,7 @@ import os
 
 # Налаштування
 BASE_URL = "https://retromagaz.com/hot-wheels?page="
-OUTPUT_FILE = "car_prices.csv"  # Змінено шлях для відповідності структурі репозиторію
+OUTPUT_FILE = "car_prices.csv"
 PROGRESS_FILE = "progress.txt"
 CURRENT_DATE = datetime.now().strftime('%Y-%m-%d')
 HEADERS = {
@@ -29,9 +29,9 @@ PRICE_THRESHOLDS = {
     'team_transport': 800,
     'mainline': 150
 }
-PAGES_PER_DAY = 10  # Кількість сторінок за день
+PAGES_PER_DAY = 40  # Кількість сторінок за день
 SAVE_INTERVAL = 5  # Зберігати CSV кожні 5 сторінок
-MAX_WORKERS = 3  # Максимальна кількість потоків
+MAX_WORKERS = 10  # Максимальна кількість потоків
 
 # Потокобезпечний список для даних (ініціалізація на початку)
 DATA = []
@@ -49,6 +49,8 @@ SKIP_TEAM_TRANSPORT = False
 # Функція для визначення типу товару, порогу та категорії
 def get_category_and_threshold(title):
     title_lower = title.lower()
+    if 'team transport' in title_lower:
+        return 'Team Transport', PRICE_THRESHOLDS['team_transport']
     if ('4шт' in title_lower or '2шт' in title_lower) and 'diorama' in title_lower:
         return 'Diorama', PRICE_THRESHOLDS['diorama']
     if 'premium' in title_lower:
@@ -57,14 +59,10 @@ def get_category_and_threshold(title):
         return 'RLC', PRICE_THRESHOLDS['rlc']
     elif 'super treasure hunt' in title_lower:
         return 'Super Treasure Hunt', PRICE_THRESHOLDS['super_treasure_hunt']
-    elif 'diorama' in title_lower:
-        return 'Diorama', PRICE_THRESHOLDS['diorama']
     elif 'matchbox' in title_lower:
         return 'Matchbox', PRICE_THRESHOLDS['matchbox']
     elif 'treasure hunt' in title_lower:
         return 'Treasure Hunts', PRICE_THRESHOLDS['treasure_hunts']
-    elif 'team transport' in title_lower:
-        return 'Team Transport', PRICE_THRESHOLDS['team_transport']
     return 'MainLine', PRICE_THRESHOLDS['mainline']
 
 # Функція для очищення назви
@@ -136,7 +134,20 @@ def scrape_product_page(url):
             if not clean_name:
                 print(f"Помилка: очищена назва порожня для {title} на {url}")
                 return None
-            return {'car_name': clean_name, 'price': price, 'category': category}
+
+            # Витягування URL зображення зі сторінки товару
+            image_url = None
+            product_image = soup.find('div', class_='product_image')
+            if product_image:
+                picture = product_image.find('picture')
+                if picture:
+                    source = picture.find('source')
+                    if source and 'srcset' in source.attrs:
+                        image_url = 'https://retromagaz.com' + source['srcset'].split()[0]  # Беремо перше зображення (webp)
+                    elif picture.find('img') and 'src' in picture.find('img').attrs:
+                        image_url = 'https://retromagaz.com' + picture.find('img')['src']  # Беремо png, якщо webp відсутнє
+
+            return {'car_name': clean_name, 'price': price, 'category': category, 'image_url': image_url}
         else:
             print(f"Пропущено: {title} - ціна {price} нижче порогу {threshold}")
             return None
@@ -184,12 +195,11 @@ def scrape_page(page_num):
 # Функція для оновлення CSV
 def update_csv():
     global DATA  # Оголосимо DATA як глобальну змінну тут
-    # Створюємо директорію data, якщо вона не існує
     os.makedirs(os.path.dirname(OUTPUT_FILE) or '.', exist_ok=True)
     try:
         df = pd.read_csv(OUTPUT_FILE, encoding='utf-8-sig')
     except FileNotFoundError:
-        df = pd.DataFrame(columns=['category', 'car_name'])
+        df = pd.DataFrame(columns=['category', 'car_name', 'image_url'])  # Додано image_url до колонок
 
     if CURRENT_DATE not in df.columns:
         df[CURRENT_DATE] = pd.NA
@@ -198,17 +208,20 @@ def update_csv():
         car_name = item['car_name']
         price = item['price']
         category = item['category']
+        image_url = item.get('image_url', '')  # Отримати image_url, якщо є
 
         car_name = f'"{car_name}"' if ',' in car_name else car_name
 
         if car_name not in df['car_name'].values:
-            df.loc[len(df)] = [category, car_name] + [pd.NA] * (len(df.columns) - 2)
+            df.loc[len(df)] = [category, car_name, image_url] + [pd.NA] * (len(df.columns) - 3)
             df.loc[df['car_name'] == car_name, CURRENT_DATE] = price
         else:
             df.loc[df['car_name'] == car_name, CURRENT_DATE] = price
             df.loc[df['car_name'] == car_name, 'category'] = category
+            if image_url:
+                df.loc[df['car_name'] == car_name, 'image_url'] = image_url
 
-    columns = ['category', 'car_name'] + [col for col in df.columns if col not in ['category', 'car_name']]
+    columns = ['category', 'car_name', 'image_url'] + [col for col in df.columns if col not in ['category', 'car_name', 'image_url']]
     df = df[columns]
     df.to_csv(OUTPUT_FILE, index=False, encoding='utf-8-sig', sep=',')
     print(f"Дані збережено в {OUTPUT_FILE}")
@@ -224,34 +237,42 @@ def main():
     max_pages = max([int(li['data-p']) for li in pagination if 'data-p' in li.attrs], default=1)
 
     # Читання або ініціалізація прогресу
-    current_page = 1
+    current_page = 0  # Почнемо з 0, щоб уникнути пропуску першої сторінки
     if os.path.exists(PROGRESS_FILE):
         with open(PROGRESS_FILE, "r") as f:
-            current_page = int(f.read().strip()) + 1
+            current_page = int(f.read().strip())
     else:
         with open(PROGRESS_FILE, "w") as f:
-            f.write("0")  # Початкове значення
+            f.write(str(current_page))
+
+    # Скидання, якщо перевищено max_pages
+    if current_page >= max_pages:
+        current_page = 0
+        with open(PROGRESS_FILE, "w") as f:
+            f.write(str(current_page))
 
     # Обмеження для сьогоднішнього дня
-    start_page = current_page
-    end_page = min(current_page + PAGES_PER_DAY - 1, max_pages)
+    start_page = current_page + 1  # Починаємо з наступної сторінки
+    end_page = min(start_page + PAGES_PER_DAY - 1, max_pages)
+
+    print(f"Start page: {start_page}, End page: {end_page}, Max pages: {max_pages}")
 
     # Парсинг сторінок
-    while current_page <= end_page:
-        if not scrape_page(current_page):
-            print(f"Парсинг завершено на сторінці {current_page}")
+    while start_page <= end_page:
+        if not scrape_page(start_page):
+            print(f"Парсинг завершено на сторінці {start_page}")
             break
 
         # Зберігаємо CSV кожні SAVE_INTERVAL сторінок
-        if current_page % SAVE_INTERVAL == 0 or current_page == end_page:
+        if start_page % SAVE_INTERVAL == 0 or start_page == end_page:
             update_csv()
 
-        current_page += 1
+        start_page += 1
         time.sleep(2)  # Затримка між сторінками
 
         # Збереження прогресу після кожної сторінки
         with open(PROGRESS_FILE, "w") as f:
-            f.write(str(current_page - 1))
+            f.write(str(start_page))
 
     # Зберігаємо залишки даних у кінці
     if DATA:

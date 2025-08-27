@@ -20,14 +20,14 @@ HEADERS = {
     "Accept-Language": "en-US,en;q=0.5"
 }
 PRICE_THRESHOLDS = {
-    'premium': 500,
-    'rlc': 2000,
-    'super_treasure_hunt': 1500,
-    'diorama': 1000,
-    'matchbox': 120,
-    'treasure_hunts': 150,
-    'team_transport': 800,
-    'mainline': 120
+    'premium': 450,
+    'rlc': 1600,
+    'super_treasure_hunt': 1000,
+    'diorama': 800,
+    'matchbox': 110,
+    'treasure_hunts': 110,
+    'team_transport': 650,
+    'mainline': 110
 }
 PAGES_PER_DAY = 40  # Кількість сторінок за день
 SAVE_INTERVAL = 5  # Зберігати CSV кожні 5 сторінок

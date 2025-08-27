@@ -4,89 +4,116 @@
     <meta charset="UTF-8">
     <title>Пошук цін на машинки</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        input { padding: 10px; width: 300px; }
-        button { padding: 10px; }
-        #result { margin-top: 20px; }
-        table { border-collapse: collapse; width: 100%; max-width: 600px; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; min-height: 100vh; }
+        .container { max-width: 600px; margin: 0 auto; }
+        input { padding: 10px; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+        button { padding: 10px; width: 100%; box-sizing: border-box; }
+        #result { margin-top: 20px; overflow-y: auto; max-height: 70vh; }
+        table { border-collapse: collapse; width: 100%; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: #f2f2f2; }
+        .warning { color: red; font-weight: bold; margin-top: 10px; }
+        img { width: 150px; height: 150px; object-fit: contain; }
+        @media (max-width: 600px) {
+            input { width: 100%; }
+            button { width: 100%; }
+            #result { max-height: 50vh; font-size: 14px; }
+            table { font-size: 14px; }
+            img { width: 100px; height: 100px; }
+            body { padding: 10px; }
+        }
     </style>
 </head>
 <body>
-    <h2>Пошук цін на машинки</h2>
-    <input type="text" id="searchInput" placeholder="Введіть назву машинки">
-    <button onclick="searchCar()">Шукати</button>
-    <div id="result"></div>
+    <div class="container">
+        <h2>Пошук цін на машинки</h2>
+        <input type="text" id="searchInput" placeholder="Введіть назву машинки">
+        <button id="searchButton">Шукати</button>
+        <div id="result"></div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script>
-      function searchCar() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase().replace(/"/g, '');
-        const resultDiv = document.getElementById('result');
-        resultDiv.innerHTML = 'Завантаження...';
-
-        Papa.parse('https://raw.githubusercontent.com/shady333/PriceParserRETRO/main/car_prices.csv', {
-          download: true,
-          header: true,
-          complete: function(results) {
-            console.log('CSV data loaded:', results.data);
-            const data = results.data;
-            const matches = data.filter(row => 
-              row.car_name && row.car_name.toLowerCase().replace(/"/g, '').includes(searchTerm)
-            );
-
-            if (matches.length > 0) {
-              let output = '<h3>Знайдені машинки:</h3><table><tr><th>Назва</th><th>Остання ціна (грн)</th><th>Дата</th></tr>';
-              matches.forEach(match => {
-                let lastPrice = null;
-                let lastDate = null;
-                for (const key in match) {
-                  if (key !== 'category' && key !== 'car_name' && match[key] && !isNaN(match[key])) {
-                    if (!lastDate || key > lastDate) {
-                      lastPrice = parseFloat(match[key]);
-                      lastDate = key;
-                    }
-                  }
-                }
-                output += `<tr><td>${match.car_name}</td><td>${lastPrice || 'N/A'}</td><td>${lastDate || 'N/A'}</td></tr>`;
-              });
-              output += '</table>';
-
-              // Якщо тільки одне співпадіння, додаємо мінімальну, максимальну ціни та їхні дати
-              if (matches.length === 1) {
-                const pricesWithDates = [];
-                for (const key in matches[0]) {
-                  if (key !== 'category' && key !== 'car_name' && matches[0][key] && !isNaN(matches[0][key])) {
-                    pricesWithDates.push({ date: key, price: parseFloat(matches[0][key]) });
-                  }
-                }
-                if (pricesWithDates.length > 0) {
-                  const lastPriceEntry = pricesWithDates.reduce((max, current) => max.date > current.date ? max : current);
-                  const minPriceEntry = pricesWithDates.reduce((min, current) => min.price < current.price ? min : current);
-                  const maxPriceEntry = pricesWithDates.reduce((max, current) => max.price > current.price ? max : current);
-
-                  output += `
-                    <p><strong>Остання ціна:</strong> ${lastPriceEntry.price} грн (дата: ${lastPriceEntry.date})</p>
-                    <p><strong>Мінімальна ціна:</strong> ${minPriceEntry.price} грн (дата: ${minPriceEntry.date})</p>
-                    <p><strong>Максимальна ціна:</strong> ${maxPriceEntry.price} грн (дата: ${maxPriceEntry.date})</p>
-                  `;
-                } else {
-                  output += '<p>Немає даних для мінімальної та максимальної цін.</p>';
-                }
-              }
-
-              resultDiv.innerHTML = output;
-            } else {
-              resultDiv.innerHTML = 'Машинку не знайдено';
+        function searchCar() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().replace(/"/g, '');
+            if (!searchTerm) {
+                document.getElementById('result').innerHTML = '<div class="warning">Будь ласка, введіть назву машинки для пошуку!</div>';
+                return;
             }
-          },
-          error: function(error) {
-            console.error('Error loading CSV:', error);
-            resultDiv.innerHTML = 'Помилка завантаження CSV: ' + error.message;
-          }
+            console.log('Search triggered for:', searchTerm);
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Завантаження...';
+
+            Papa.parse('https://raw.githubusercontent.com/shady333/PriceParserRETRO/main/car_prices.csv', {
+                download: true,
+                header: true,
+                complete: function(results) {
+                    console.log('CSV data loaded:', results.data);
+                    const data = results.data;
+                    const matches = data.filter(row => 
+                        row.car_name && row.car_name.toLowerCase().replace(/"/g, '').includes(searchTerm)
+                    );
+
+                    if (matches.length > 0) {
+                        let output = '<h3>Знайдені машинки:</h3><table><tr><th>Зображення</th><th>Назва</th><th>Остання ціна (грн)</th><th>Дата</th></tr>';
+                        matches.forEach(match => {
+                            let lastPrice = null;
+                            let lastDate = null;
+                            for (const key in match) {
+                                if (key !== 'category' && key !== 'car_name' && match[key] && !isNaN(match[key])) {
+                                    if (!lastDate || key > lastDate) {
+                                        lastPrice = parseFloat(match[key]);
+                                        lastDate = key;
+                                    }
+                                }
+                            }
+                            const imageUrl = match.image_url || 'https://via.placeholder.com/150'; // Використовуємо URL з CSV або плейсхолдер
+                            output += `<tr><td><img src="${imageUrl}" alt="Зображення ${match.car_name}"></td><td>${match.car_name}</td><td>${lastPrice || 'N/A'}</td><td>${lastDate || 'N/A'}</td></tr>`;
+                        });
+                        output += '</table>';
+
+                        if (matches.length === 1) {
+                            const pricesWithDates = [];
+                            for (const key in matches[0]) {
+                                if (key !== 'category' && key !== 'car_name' && matches[0][key] && !isNaN(matches[0][key])) {
+                                    pricesWithDates.push({ date: key, price: parseFloat(matches[0][key]) });
+                                }
+                            }
+                            if (pricesWithDates.length > 0) {
+                                const lastPriceEntry = pricesWithDates.reduce((max, current) => max.date > current.date ? max : current);
+                                const minPriceEntry = pricesWithDates.reduce((min, current) => min.price < current.price ? min : current);
+                                const maxPriceEntry = pricesWithDates.reduce((max, current) => max.price > current.price ? max : current);
+
+                                output += `
+                                    <p><strong>Остання ціна:</strong> ${lastPriceEntry.price} грн (дата: ${lastPriceEntry.date})</p>
+                                    <p><strong>Мінімальна ціна:</strong> ${minPriceEntry.price} грн (дата: ${minPriceEntry.date})</p>
+                                    <p><strong>Максимальна ціна:</strong> ${maxPriceEntry.price} грн (дата: ${maxPriceEntry.date})</p>
+                                `;
+                            } else {
+                                output += '<p>Немає даних для мінімальної та максимальної цін.</p>';
+                            }
+                        }
+
+                        resultDiv.innerHTML = output;
+                    } else {
+                        resultDiv.innerHTML = 'Машинку не знайдено';
+                    }
+                },
+                error: function(error) {
+                    console.error('Error loading CSV:', error);
+                    resultDiv.innerHTML = 'Помилка завантаження CSV: ' + error.message;
+                }
+            });
+        }
+
+        // Додавання обробки подій
+        document.getElementById('searchButton').addEventListener('click', searchCar);
+        document.getElementById('searchButton').addEventListener('touchstart', searchCar);
+        document.getElementById('searchInput').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                searchCar();
+            }
         });
-      }
     </script>
 </body>
 </html>

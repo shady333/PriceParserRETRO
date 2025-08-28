@@ -1,206 +1,89 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>За скільки можна продати ХотВілс в ретромагаз</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 10px;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-        .container {
-            width: 100% !important;
-            max-width: 100% !important;
-            margin: 0 auto;
-            padding: 0;
-        }
-        input {
-            padding: 12px;
-            width: 100%;
-            box-sizing: border-box;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-        button {
-            padding: 12px;
-            width: 100%;
-            box-sizing: border-box;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        #result {
-            margin-top: 20px;
-            overflow-y: auto;
-            width: 100% !important;
-            min-height: 400px !important; /* Забезпечуємо мінімальну висоту */
-            display: none; /* Приховано за замовчуванням */
-        }
-        .placeholder {
-            width: 100% !important;
-            min-height: 400px; /* Фіксована висота заглушки */
-            background-color: #f0f0f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            color: #666;
-            margin-top: 20px;
-            border: 1px solid #ddd;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            min-width: 500px; /* Зменшено для мобільних */
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-            font-size: 16px;
-        }
-        th {
-            background-color: #f2f2f2;
-            position: sticky;
-            top: 0;
-            z-index: 1;
-        }
-        .warning {
-            color: red;
-            font-weight: bold;
-            margin-top: 10px;
-            font-size: 16px;
-        }
-        img {
-            width: 120px;
-            height: 120px;
-            object-fit: contain;
-        }
-        .table-wrapper {
-            width: 100% !important;
-            overflow-x: auto;
-        }
-        .price-info {
-            margin-bottom: 20px;
-            font-size: 16px;
-        }
-        .price-info p {
-            margin: 5px 0;
-        }
-        @media (max-width: 600px) {
-            input, button {
-                font-size: 14px;
-            }
-            #result {
-                min-height: 500px !important; /* Збільшуємо висоту для мобільних */
-                font-size: 14px;
-                display: none; /* Приховано за замовчуванням */
-            }
-            .placeholder {
-                min-height: 500px !important; /* Збільшуємо висоту заглушки */
-                font-size: 14px;
-            }
-            table {
-                font-size: 14px;
-                min-width: 400px; /* Ще менша ширина для мобільних */
-            }
-            img {
-                width: 80px;
-                height: 80px;
-            }
-            th, td {
-                padding: 6px;
-            }
-            .price-info {
-                font-size: 14px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="price-info" id="priceInfo"></div>
-        <h2>Пошук цін на машинки (за скільки їх купують)</h2>
-        <input type="text" id="searchInput" placeholder="Введіть назву машинки">
-        <button id="searchButton">Шукати</button>
-        <div class="placeholder" id="placeholder">Введіть назву машинки для пошуку результатів</div>
-        <div id="result"></div>
-    </div>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script>
+    // Дані PRICE_THRESHOLDS із price_finder.py
+    const PRICE_THRESHOLDS = {
+        'premium': 450,
+        'rlc': 1600,
+        'super_treasure_hunt': 1000,
+        'diorama': 800,
+        'matchbox': 110,
+        'treasure_hunts': 110,
+        'team_transport': 650,
+        'mainline': 110
+    };
 
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <script>
-        // Дані PRICE_THRESHOLDS із price_finder.py
-        const PRICE_THRESHOLDS = {
-            'premium': 450,
-            'rlc': 1600,
-            'super_treasure_hunt': 1000,
-            'diorama': 800,
-            'matchbox': 110,
-            'treasure_hunts': 110,
-            'team_transport': 650,
-            'mainline': 110
-        };
+    // Виведення інформації про мінімальні ціни
+    function displayPriceInfo() {
+        const priceInfoDiv = document.getElementById('priceInfo');
+        priceInfoDiv.innerHTML = `
+            <p><strong>Мінімальна ціна на:</strong></p>
+            <p>Mainline - ${PRICE_THRESHOLDS.mainline} грн</p>
+            <p>Premium - ${PRICE_THRESHOLDS.premium} грн</p>
+        `;
+    }
 
-        // Виведення інформації про мінімальні ціни
-        function displayPriceInfo() {
-            const priceInfoDiv = document.getElementById('priceInfo');
-            priceInfoDiv.innerHTML = `
-                <p><strong>Мінімальна ціна на:</strong></p>
-                <p>Mainline - ${PRICE_THRESHOLDS.mainline} грн</p>
-                <p>Premium - ${PRICE_THRESHOLDS.premium} грн</p>
-            `;
+    // Виклик функції для відображення цін
+    displayPriceInfo();
+
+    function searchCar() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().replace(/"/g, '');
+        const resultDiv = document.getElementById('result');
+        const placeholderDiv = document.getElementById('placeholder');
+
+        // Ховаємо заглушку і показуємо результати
+        placeholderDiv.style.display = 'none';
+        resultDiv.style.display = 'block';
+
+        if (!searchTerm) {
+            resultDiv.innerHTML = '<div class="warning">Будь ласка, введіть назву машинки для пошуку!</div>';
+            return;
         }
+        console.log('Search triggered for:', searchTerm);
+        resultDiv.innerHTML = 'Завантаження...';
 
-        // Виклик функції для відображення цін
-        displayPriceInfo();
+        Papa.parse('https://raw.githubusercontent.com/shady333/PriceParserRETRO/main/car_prices.csv', {
+            download: true,
+            header: true,
+            complete: function(results) {
+                console.log('CSV data loaded:', results.data);
+                const data = results.data;
+                const matches = data.filter(row => 
+                    row.car_name && row.car_name.toLowerCase().replace(/"/g, '').includes(searchTerm)
+                );
 
-        function searchCar() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase().replace(/"/g, '');
-            const resultDiv = document.getElementById('result');
-            const placeholderDiv = document.getElementById('placeholder');
-
-            // Ховаємо заглушку і показуємо результати
-            placeholderDiv.style.display = 'none';
-            resultDiv.style.display = 'block';
-
-            if (!searchTerm) {
-                resultDiv.innerHTML = '<div class="warning">Будь ласка, введіть назву машинки для пошуку!</div>';
-                return;
-            }
-            console.log('Search triggered for:', searchTerm);
-            resultDiv.innerHTML = 'Завантаження...';
-
-            Papa.parse('https://raw.githubusercontent.com/shady333/PriceParserRETRO/main/car_prices.csv', {
-                download: true,
-                header: true,
-                complete: function(results) {
-                    console.log('CSV data loaded:', results.data);
-                    const data = results.data;
-                    const matches = data.filter(row => 
-                        row.car_name && row.car_name.toLowerCase().replace(/"/g, '').includes(searchTerm)
-                    );
-
-                    if (matches.length > 0) {
-                        let output = '<h3>Знайдені машинки:</h3><div class="table-wrapper"><table><tr><th>Зображення</th><th>Назва</th><th>Остання ціна (грн)</th><th>Дата</th></tr>';
-                        matches.forEach(match => {
-                            let lastPrice = null;
-                            let lastDate = null;
-                            for (const key in match) {
-                                if (key !== 'category' && key !== 'car_name' && match[key] && !isNaN(match[key])) {
-                                    if (!lastDate || key > lastDate) {
-                                        lastPrice = parseFloat(match[key]);
-                                        lastDate = key;
-                                    }
+                if (matches.length > 0) {
+                    let output = '<h3>Знайдені машинки:</h3><div class="table-wrapper"><table><tr><th>Зображення</th><th>Назва</th><th>Остання ціна (грн)</th><th>Дата</th></tr>';
+                    matches.forEach(match => {
+                        let lastPrice = null;
+                        let lastDate = null;
+                        for (const key in match) {
+                            if (key !== 'category' && key !== 'car_name' && match[key] && !isNaN(match[key])) {
+                                if (!lastDate || key > lastDate) {
+                                    lastPrice = parseFloat(match[key]);
+                                    lastDate = key;
                                 }
                             }
-                            const imageUrl = match.image_url || 'https://via.placeholder.com/150';
-                            output += `<tr><td><img src="${imageUrl}" alt="Зображення ${match.car_name}"></td><td>${match.car_name}</td><td>${lastPrice || 'N/A'}</td><td>${lastDate || 'N/A'}</td></tr>`;
-                        });
-                        output += '</table></div>';
+                        }
+                        const imageUrl = match.image_url || 'https://via.placeholder.com/150';
 
+                        // Перевірка різниці в днях
+                        const currentDate = new Date();
+                        const lastDateObj = new Date(lastDate);
+                        const diffDays = Math.floor((currentDate - lastDateObj) / (1000 * 60 * 60 * 24));
+
+                        // Не показувати, якщо немає ціни за останні 10 днів
+                        if (!lastDate || diffDays > 10) {
+                            return; // Пропускаємо цей рядок
+                        }
+
+                        // Підсвітка або червоний текст, якщо різниця > 3 дні
+                        let rowClass = diffDays > 3 ? 'warning' : '';
+                        output += `<tr class="${rowClass}"><td><img src="${imageUrl}" alt="Зображення ${match.car_name}"></td><td>${match.car_name}</td><td>${lastPrice || 'N/A'}</td><td>${lastDate || 'N/A'}</td></tr>`;
+                    });
+                    output += '</table></div>';
+
+                    // Перевіряємо, чи залишилися рядки після фільтрації
+                    if (output.includes('<tr')) {
                         if (matches.length === 1) {
                             const pricesWithDates = [];
                             for (const key in matches[0]) {
@@ -222,34 +105,34 @@
                                 output += '<p>Немає даних для мінімальної та максимальної цін.</p>';
                             }
                         }
-
                         resultDiv.innerHTML = output;
                     } else {
-                        resultDiv.innerHTML = 'Машинку не знайдено';
+                        resultDiv.innerHTML = 'Машинку не знайдено або дані застарілі (більше 10 днів).';
                     }
-                },
-                error: function(error) {
-                    console.error('Error loading CSV:', error);
-                    resultDiv.innerHTML = 'Помилка завантаження CSV: ' + error.message;
+                } else {
+                    resultDiv.innerHTML = 'Машинку не знайдено';
                 }
-            });
+            },
+            error: function(error) {
+                console.error('Error loading CSV:', error);
+                resultDiv.innerHTML = 'Помилка завантаження CSV: ' + error.message;
+            }
+        });
+    }
+
+    // Повернення заглушки при очищенні поля вводу
+    document.getElementById('searchInput').addEventListener('input', function(event) {
+        if (!event.target.value) {
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('placeholder').style.display = 'flex';
         }
+    });
 
-        // Повернення заглушки при очищенні поля вводу
-        document.getElementById('searchInput').addEventListener('input', function(event) {
-            if (!event.target.value) {
-                document.getElementById('result').style.display = 'none';
-                document.getElementById('placeholder').style.display = 'flex';
-            }
-        });
-
-        document.getElementById('searchButton').addEventListener('click', searchCar);
-        document.getElementById('searchButton').addEventListener('touchstart', searchCar);
-        document.getElementById('searchInput').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                searchCar();
-            }
-        });
-    </script>
-</body>
-</html>
+    document.getElementById('searchButton').addEventListener('click', searchCar);
+    document.getElementById('searchButton').addEventListener('touchstart', searchCar);
+    document.getElementById('searchInput').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            searchCar();
+        }
+    });
+</script>

@@ -2,8 +2,9 @@ name: Scrape and Update CSV
 
 on:
   schedule:
-    - cron: '0 6 * * *' # Запуск щодня о 06:00 UTC (08:00 CEST)
-  workflow_dispatch:       # Дозволяє запуск вручну
+    - cron: '0 6 * * *'   # 08:00 CEST — ранок, після оновлення прайсів постачальниками
+    - cron: '0 14 * * *'  # 16:00 CEST — перед завершенням робочого дня, для свіжих даних
+  workflow_dispatch:
 
 permissions:
   contents: write  # Додано для дозволу запису

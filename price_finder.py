@@ -32,7 +32,7 @@ PRICE_THRESHOLDS = {
 WORDS_TO_IGNORE = {
     "Набір"
 }
-PAGES_PER_DAY = 100  # Кількість сторінок за день
+PAGES_PER_DAY = 40  # Кількість сторінок за день
 SAVE_INTERVAL = 5  # Зберігати CSV кожні 5 сторінок
 MAX_WORKERS = 15  # Максимальна кількість потоків
 

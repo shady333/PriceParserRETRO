@@ -29,6 +29,9 @@ PRICE_THRESHOLDS = {
     'team_transport': 650,
     'mainline': 110
 }
+WORDS_TO_IGNORE = {
+    "Набір"
+}
 PAGES_PER_DAY = 40  # Кількість сторінок за день
 SAVE_INTERVAL = 5  # Зберігати CSV кожні 5 сторінок
 MAX_WORKERS = 10  # Максимальна кількість потоків
@@ -80,6 +83,9 @@ def clean_title(title):
         clean = re.sub(pattern, '', clean, flags=re.IGNORECASE)
     return clean.strip()
 
+def check_ignore_words(text):
+    return any(word in text for word in WORDS_TO_IGNORE)
+
 # Функція для парсингу сторінки товару
 def scrape_product_page(url):
     try:
@@ -105,6 +111,10 @@ def scrape_product_page(url):
         title = title_h1.text.strip()
         if not title or not ('hot wheels' in title.lower() or 'matchbox' in title.lower()):
             print(f"Пропущено: {title} - не машинка")
+            return None
+
+        if check_ignore_words(title):
+            print(f"Пропущено: {title} - містить слово з списку для ігнорування")
             return None
 
         category, threshold = get_category_and_threshold(title)

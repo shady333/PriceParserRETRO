@@ -21,14 +21,14 @@ HEADERS = {
     "Accept-Language": "en-US,en;q=0.5"
 }
 PRICE_THRESHOLDS = {
-    'premium': 450,
-    'rlc': 1600,
-    'super_treasure_hunt': 1000,
-    'diorama': 800,
-    'matchbox': 110,
-    'treasure_hunts': 110,
-    'team_transport': 650,
-    'mainline': 110
+    'premium': 350,
+    'rlc': 1200,
+    'super_treasure_hunt': 900,
+    'diorama': 600,
+    'matchbox': 90,
+    'treasure_hunts': 90,
+    'team_transport': 550,
+    'mainline': 90
 }
 WORDS_TO_IGNORE = {
     "Набір"

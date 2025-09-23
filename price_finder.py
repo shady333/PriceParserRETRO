@@ -33,9 +33,9 @@ PRICE_THRESHOLDS = {
 WORDS_TO_IGNORE = {
     "Набір"
 }
-PAGES_PER_DAY = 40
+PAGES_PER_DAY = 60
 SAVE_INTERVAL = 5
-MAX_WORKERS = 15
+MAX_WORKERS = 20
 
 # Потокобезпечний список для даних
 BUY_DATA = []  # For buying prices

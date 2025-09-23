@@ -143,7 +143,15 @@ def scrape_product_page(url):
         if not sell_price_elem:
             print(f"Помилка: не знайдено ціну продажу на {url}")
             return None
-        sell_price_text = sell_price_elem.text.strip()
+
+        # Шукаємо акційну ціну
+        promo_price_elem = sell_price_elem.find('span', class_='red-text')
+        if promo_price_elem:
+            sell_price_text = promo_price_elem.text.strip()
+        else:
+            # Якщо акційної ціни немає — беремо всю ціну
+            sell_price_text = sell_price_elem.text.strip()
+        
         sell_price_text = re.sub(r'[^\d.]', '', sell_price_text)
         sell_price = float(sell_price_text)
 

@@ -11,7 +11,8 @@ import os
 
 # Налаштування
 BASE_URL = "https://retromagaz.com/hot-wheels?page="
-OUTPUT_FILE = "car_prices.csv"
+BUY_OUTPUT_FILE = "car_prices.csv"  # Renamed for clarity
+SELL_OUTPUT_FILE = "sell_car_prices.csv"  # New file for selling prices
 PROGRESS_FILE = "progress.txt"
 CURRENT_DATE = datetime.now().strftime('%Y-%m-%d')
 HEADERS = {
@@ -32,12 +33,13 @@ PRICE_THRESHOLDS = {
 WORDS_TO_IGNORE = {
     "Набір"
 }
-PAGES_PER_DAY = 40  # Кількість сторінок за день
-SAVE_INTERVAL = 5  # Зберігати CSV кожні 5 сторінок
-MAX_WORKERS = 15  # Максимальна кількість потоків
+PAGES_PER_DAY = 40
+SAVE_INTERVAL = 5
+MAX_WORKERS = 15
 
-# Потокобезпечний список для даних (ініціалізація на початку)
-DATA = []
+# Потокобезпечний список для даних
+BUY_DATA = []  # For buying prices
+SELL_DATA = []  # For selling prices
 DATA_LOCK = threading.Lock()
 
 # Параметри фільтрування
@@ -89,7 +91,7 @@ def check_ignore_words(text):
 # Функція для парсингу сторінки товару
 def scrape_product_page(url):
     try:
-        time.sleep(random.uniform(1, 3))  # Випадкова затримка
+        time.sleep(random.uniform(1, 3))
         response = requests.get(url, headers=HEADERS, timeout=10)
         if response.status_code != 200:
             print(f"Помилка: не вдалося отримати сторінку товару {url} (код: {response.status_code})")
@@ -99,13 +101,11 @@ def scrape_product_page(url):
         title_elem = soup.find('div', class_=re.compile('product_title--top'))
         if not title_elem:
             print(f"Помилка: не знайдено div.product_title--top на {url}")
-            print(f"HTML фрагмент: {soup.find('div', class_=re.compile('product_title')).prettify()[:500]}")
             return None
 
         title_h1 = title_elem.find('h1') or title_elem.find('p', class_='h1')
         if not title_h1:
             print(f"Помилка: не знайдено h1 або p.h1 у product_title--top на {url}")
-            print(f"HTML div: {title_elem.prettify()[:500]}")
             return None
 
         title = title_h1.text.strip()
@@ -129,23 +129,32 @@ def scrape_product_page(url):
             print(f"Пропущено: {title} - фільтр категорії")
             return None
 
+        # Buying price
         price_elem = soup.find('div', class_='product_info--shoping-bar')
         if not price_elem or not price_elem.find('span', class_='price'):
-            print(f"Помилка: не знайдено ціну на {url}")
+            print(f"Помилка: не знайдено ціну покупки на {url}")
             return None
-
         price_text = price_elem.find('span', class_='price').text.strip()
         price_text = re.sub(r'[^\d.]', '', price_text)
-        price = float(price_text)
+        buy_price = float(price_text)
 
-        if price >= threshold:
-            print(f"Знайдено: {title} - ціна {price} (поріг {threshold}, категорія {category})")
+        # Selling price
+        sell_price_elem = soup.find('p', class_='product_options-price')
+        if not sell_price_elem:
+            print(f"Помилка: не знайдено ціну продажу на {url}")
+            return None
+        sell_price_text = sell_price_elem.text.strip()
+        sell_price_text = re.sub(r'[^\d.]', '', sell_price_text)
+        sell_price = float(sell_price_text)
+
+        if buy_price >= threshold:
+            print(f"Знайдено: {title} - ціна покупки {buy_price}, ціна продажу {sell_price} (поріг {threshold}, категорія {category})")
             clean_name = clean_title(title)
             if not clean_name:
                 print(f"Помилка: очищена назва порожня для {title} на {url}")
                 return None
 
-            # Витягування URL зображення зі сторінки товару
+            # Витягування URL зображення
             image_url = None
             product_image = soup.find('div', class_='product_image')
             if product_image:
@@ -153,22 +162,61 @@ def scrape_product_page(url):
                 if picture:
                     source = picture.find('source')
                     if source and 'srcset' in source.attrs:
-                        image_url = 'https://retromagaz.com' + source['srcset'].split()[0]  # Беремо перше зображення (webp)
+                        image_url = 'https://retromagaz.com' + source['srcset'].split()[0]
                     elif picture.find('img') and 'src' in picture.find('img').attrs:
-                        image_url = 'https://retromagaz.com' + picture.find('img')['src']  # Беремо png, якщо webp відсутнє
+                        image_url = 'https://retromagaz.com' + picture.find('img')['src']
 
-            return {'car_name': clean_name, 'price': price, 'category': category, 'image_url': image_url}
+            return {
+                'car_name': clean_name,
+                'buy_price': buy_price,
+                'sell_price': sell_price,
+                'category': category,
+                'image_url': image_url
+            }
         else:
-            print(f"Пропущено: {title} - ціна {price} нижче порогу {threshold}")
+            print(f"Пропущено: {title} - ціна покупки {buy_price} нижче порогу {threshold}")
             return None
 
     except Exception as e:
         print(f"Помилка на сторінці {url}: {e}")
         return None
 
+# Функція для оновлення CSV
+def update_csv(file_path, data_list, price_key):
+    os.makedirs(os.path.dirname(file_path) or '.', exist_ok=True)
+    try:
+        df = pd.read_csv(file_path, encoding='utf-8-sig')
+    except FileNotFoundError:
+        df = pd.DataFrame(columns=['category', 'car_name', 'image_url'])
+
+    if CURRENT_DATE not in df.columns:
+        df[CURRENT_DATE] = pd.NA
+
+    for item in data_list:
+        car_name = item['car_name']
+        price = item[price_key]
+        category = item['category']
+        image_url = item.get('image_url', '')
+
+        car_name = f'"{car_name}"' if ',' in car_name else car_name
+
+        if car_name not in df['car_name'].values:
+            df.loc[len(df)] = [category, car_name, image_url] + [pd.NA] * (len(df.columns) - 3)
+            df.loc[df['car_name'] == car_name, CURRENT_DATE] = price
+        else:
+            df.loc[df['car_name'] == car_name, CURRENT_DATE] = price
+            df.loc[df['car_name'] == car_name, 'category'] = category
+            if image_url:
+                df.loc[df['car_name'] == car_name, 'image_url'] = image_url
+
+    columns = ['category', 'car_name', 'image_url'] + [col for col in df.columns if col not in ['category', 'car_name', 'image_url']]
+    df = df[columns]
+    df.to_csv(file_path, index=False, encoding='utf-8-sig', sep=',')
+    print(f"Дані збережено в {file_path}")
+
 # Функція для парсингу сторінки пагінації
 def scrape_page(page_num):
-    global DATA  # Оголосимо DATA як глобальну змінну тут
+    global BUY_DATA, SELL_DATA
     url = f"{BASE_URL}{page_num}"
     print(f"Парсимо сторінку {page_num}...")
 
@@ -186,14 +234,24 @@ def scrape_page(page_num):
 
         product_urls = [item.find('a', class_='game-card__image')['href'] for item in items if item.find('a', class_='game-card__image') and item.find('a', class_='game-card__image').get('href')]
 
-        # Обробляємо товари паралельно
         with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
             futures = [executor.submit(scrape_product_page, url) for url in product_urls]
             for future in futures:
                 result = future.result()
                 if result:
                     with DATA_LOCK:
-                        DATA.append(result)
+                        BUY_DATA.append({
+                            'car_name': result['car_name'],
+                            'price': result['buy_price'],
+                            'category': result['category'],
+                            'image_url': result['image_url']
+                        })
+                        SELL_DATA.append({
+                            'car_name': result['car_name'],
+                            'price': result['sell_price'],
+                            'category': result['category'],
+                            'image_url': result['image_url']
+                        })
 
         next_page = soup.find('li', class_='item', attrs={'data-p': str(page_num + 1)})
         return bool(next_page)
@@ -202,52 +260,15 @@ def scrape_page(page_num):
         print(f"Помилка на сторінці {url}: {e}")
         return False
 
-# Функція для оновлення CSV
-def update_csv():
-    global DATA  # Оголосимо DATA як глобальну змінну тут
-    os.makedirs(os.path.dirname(OUTPUT_FILE) or '.', exist_ok=True)
-    try:
-        df = pd.read_csv(OUTPUT_FILE, encoding='utf-8-sig')
-    except FileNotFoundError:
-        df = pd.DataFrame(columns=['category', 'car_name', 'image_url'])  # Додано image_url до колонок
-
-    if CURRENT_DATE not in df.columns:
-        df[CURRENT_DATE] = pd.NA
-
-    for item in DATA:
-        car_name = item['car_name']
-        price = item['price']
-        category = item['category']
-        image_url = item.get('image_url', '')  # Отримати image_url, якщо є
-
-        car_name = f'"{car_name}"' if ',' in car_name else car_name
-
-        if car_name not in df['car_name'].values:
-            df.loc[len(df)] = [category, car_name, image_url] + [pd.NA] * (len(df.columns) - 3)
-            df.loc[df['car_name'] == car_name, CURRENT_DATE] = price
-        else:
-            df.loc[df['car_name'] == car_name, CURRENT_DATE] = price
-            df.loc[df['car_name'] == car_name, 'category'] = category
-            if image_url:
-                df.loc[df['car_name'] == car_name, 'image_url'] = image_url
-
-    columns = ['category', 'car_name', 'image_url'] + [col for col in df.columns if col not in ['category', 'car_name', 'image_url']]
-    df = df[columns]
-    df.to_csv(OUTPUT_FILE, index=False, encoding='utf-8-sig', sep=',')
-    print(f"Дані збережено в {OUTPUT_FILE}")
-    with DATA_LOCK:
-        DATA = []  # Очищаємо дані після збереження
-
 # Головна логіка
 def main():
-    # Витягування максимальної кількості сторінок
+    global BUY_DATA, SELL_DATA
     response = requests.get(BASE_URL + "1", headers=HEADERS)
     soup = BeautifulSoup(response.text, 'html.parser')
     pagination = soup.find_all('li', class_='item')
     max_pages = max([int(li['data-p']) for li in pagination if 'data-p' in li.attrs], default=1)
 
-    # Читання або ініціалізація прогресу
-    current_page = 0  # Почнемо з 0, щоб уникнути пропуску першої сторінки
+    current_page = 0
     if os.path.exists(PROGRESS_FILE):
         with open(PROGRESS_FILE, "r") as f:
             current_page = int(f.read().strip())
@@ -255,38 +276,44 @@ def main():
         with open(PROGRESS_FILE, "w") as f:
             f.write(str(current_page))
 
-    # Скидання, якщо перевищено max_pages
     if current_page >= max_pages:
         current_page = 0
         with open(PROGRESS_FILE, "w") as f:
             f.write(str(current_page))
 
-    # Обмеження для сьогоднішнього дня
-    start_page = current_page + 1  # Починаємо з наступної сторінки
+    start_page = current_page + 1
     end_page = min(start_page + PAGES_PER_DAY - 1, max_pages)
 
     print(f"Start page: {start_page}, End page: {end_page}, Max pages: {max_pages}")
 
-    # Парсинг сторінок
     while start_page <= end_page:
         if not scrape_page(start_page):
             print(f"Парсинг завершено на сторінці {start_page}")
             break
 
-        # Зберігаємо CSV кожні SAVE_INTERVAL сторінок
         if start_page % SAVE_INTERVAL == 0 or start_page == end_page:
-            update_csv()
+            with DATA_LOCK:
+                if BUY_DATA:
+                    update_csv(BUY_OUTPUT_FILE, BUY_DATA, 'price')
+                    BUY_DATA = []
+                if SELL_DATA:
+                    update_csv(SELL_OUTPUT_FILE, SELL_DATA, 'price')
+                    SELL_DATA = []
 
         start_page += 1
-        time.sleep(2)  # Затримка між сторінками
+        time.sleep(2)
 
-        # Збереження прогресу після кожної сторінки
         with open(PROGRESS_FILE, "w") as f:
             f.write(str(start_page))
 
-    # Зберігаємо залишки даних у кінці
-    if DATA:
-        update_csv()
+    if BUY_DATA or SELL_DATA:
+        with DATA_LOCK:
+            if BUY_DATA:
+                update_csv(BUY_OUTPUT_FILE, BUY_DATA, 'price')
+                BUY_DATA = []
+            if SELL_DATA:
+                update_csv(SELL_OUTPUT_FILE, SELL_DATA, 'price')
+                SELL_DATA = []
     else:
         print("Немає даних для збереження")
 

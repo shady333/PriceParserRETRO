@@ -132,355 +132,241 @@
             margin-top: 20px;
         }
         @media (max-width: 600px) {
-            input, select, button {
-                font-size: 14px;
-            }
-            #result {
-                min-height: 500px !important;
-                font-size: 14px;
-                display: none;
-            }
-            .placeholder {
-                min-height: 500px !important;
-                font-size: 14px;
-            }
-            table {
-                font-size: 14px;
-                min-width: 400px;
-            }
-            img {
-                width: 80px;
-                height: 80px;
-            }
-            th, td {
-                padding: 6px;
-            }
-            .price-info {
-                font-size: 14px;
-            }
-            #priceChart {
-                max-width: 100%;
-            }
+            input, select, button { font-size: 14px; }
+            #result { min-height: 500px !important; font-size: 14px; display: none; }
+            .placeholder { min-height: 500px !important; font-size: 14px; }
+            table { font-size: 14px; min-width: 400px; }
+            img { width: 80px; height: 80px; }
+            th, td { padding: 6px; }
+            .price-info { font-size: 14px; }
+            #priceChart { max-width: 100%; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Пошук цін на машинки (за скільки їх купують)</h2>
-        <button id="toggleFilters">Фільтри</button>
-        <div id="filters">
-            <div class="price-info" id="priceInfo"></div>
-            <div class="checkbox-container">
-                <label>
-                    <input type="checkbox" id="showOldData" name="showOldData">
-                    Показувати старі дані
-                </label>
-            </div>
-            <div class="select-container">
-                <label for="categoryFilter">Категорія:</label>
-                <select id="categoryFilter" name="categoryFilter">
-                    <option value="ALL">Всі</option>
-                    <option value="MainLine">MainLine</option>
-                    <option value="Premium">Premium</option>
-                    <option value="Treasure Hunts">Treasure Hunts</option>
-                    <option value="Super Treasure Hunt">Super Treasure Hunt</option>
-                    <option value="Team Transport">Team Transport</option>
-                    <option value="Matchbox">Matchbox</option>
-                    <option value="RLC">RLC</option>
-                    <option value="Elite 64">Elite 64</option>
-                </select>
-            </div>
-            <div class="select-container">
-                <label for="trendFilter">Тренд:</label>
-                <select id="trendFilter" name="trendFilter">
-                    <option value="ALL">Всі</option>
-                    <option value="UP">Ростуть</option>
-                    <option value="DOWN">Падають</option>
-                </select>
-            </div>
+<div class="container">
+    <h2>Пошук цін на машинки (за скільки їх купують)</h2>
+    <button id="toggleFilters">Фільтри</button>
+    <div id="filters">
+        <div class="price-info" id="priceInfo"></div>
+        <div class="checkbox-container">
+            <label>
+                <input type="checkbox" id="showOldData" name="showOldData">
+                Показувати старі дані
+            </label>
         </div>
-        <input type="text" id="searchInput" placeholder="Введіть назву машинки">
-        <button id="searchButton">Шукати</button>
-        <div class="placeholder" id="placeholder">Введіть назву машинки для пошуку результатів</div>
-        <div id="result"></div>
+        <div class="select-container">
+            <label for="categoryFilter">Категорія:</label>
+            <select id="categoryFilter" name="categoryFilter">
+                <option value="ALL">Всі</option>
+                <option value="MainLine">MainLine</option>
+                <option value="Premium">Premium</option>
+                <option value="Treasure Hunts">Treasure Hunts</option>
+                <option value="Super Treasure Hunt">Super Treasure Hunt</option>
+                <option value="Team Transport">Team Transport</option>
+                <option value="Matchbox">Matchbox</option>
+                <option value="RLC">RLC</option>
+                <option value="Elite 64">Elite 64</option>
+            </select>
+        </div>
+        <div class="select-container">
+            <label for="trendFilter">Тренд:</label>
+            <select id="trendFilter" name="trendFilter">
+                <option value="ALL">Всі</option>
+                <option value="UP">Ростуть</option>
+                <option value="DOWN">Падають</option>
+            </select>
+        </div>
     </div>
+    <input type="text" id="searchInput" placeholder="Введіть назву машинки">
+    <button id="searchButton">Шукати</button>
+    <div class="placeholder" id="placeholder">Введіть назву машинки для пошуку результатів</div>
+    <div id="result"></div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script>
-        // Дані PRICE_THRESHOLDS
-        const PRICE_THRESHOLDS = {
-            'Premium': 400,
-            'RLC': 1200,
-            'Super Treasure Hunt': 900,
-            'diorama': 700,
-            'Matchbox': 100,
-            'Treasure Hunts': 100,
-            'Team Transport': 600,
-            'MainLine': 100,
-            'Elite 64': 800
-        };
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const PRICE_THRESHOLDS = {
+    'Premium': 400, 'RLC': 1200, 'Super Treasure Hunt': 900,
+    'diorama': 700, 'Matchbox': 100, 'Treasure Hunts': 100,
+    'Team Transport': 600, 'MainLine': 100, 'Elite 64': 800
+};
 
-        // Виведення інформації про мінімальні ціни
-        function displayPriceInfo() {
-            const priceInfoDiv = document.getElementById('priceInfo');
-            priceInfoDiv.innerHTML = `
-                <p><strong>Мінімальна ціна на:</strong></p>
-                <p>MainLine - ${PRICE_THRESHOLDS.MainLine} грн</p>
-                <p>Premium - ${PRICE_THRESHOLDS.Premium} грн</p>
-                <p>Treasure Hunts - ${PRICE_THRESHOLDS['Treasure Hunts']} грн</p>
-                <p>Super Treasure Hunt - ${PRICE_THRESHOLDS['Super Treasure Hunt']} грн</p>
-                <p>Team Transport - ${PRICE_THRESHOLDS['Team Transport']} грн</p>
-                <p>Matchbox - ${PRICE_THRESHOLDS.Matchbox} грн</p>
-                <p>RLC - ${PRICE_THRESHOLDS.RLC} грн</p>
-                <p>Elite 64 - ${PRICE_THRESHOLDS['Elite 64']} грн</p>
-            `;
-        }
+function displayPriceInfo() {
+    const priceInfoDiv = document.getElementById('priceInfo');
+    priceInfoDiv.innerHTML = `
+        <p><strong>Мінімальна ціна на:</strong></p>
+        <p>MainLine - ${PRICE_THRESHOLDS.MainLine} грн</p>
+        <p>Premium - ${PRICE_THRESHOLDS.Premium} грн</p>
+        <p>Treasure Hunts - ${PRICE_THRESHOLDS['Treasure Hunts']} грн</p>
+        <p>Super Treasure Hunt - ${PRICE_THRESHOLDS['Super Treasure Hunt']} грн</p>
+        <p>Team Transport - ${PRICE_THRESHOLDS['Team Transport']} грн</p>
+        <p>Matchbox - ${PRICE_THRESHOLDS.Matchbox} грн</p>
+        <p>RLC - ${PRICE_THRESHOLDS.RLC} грн</p>
+        <p>Elite 64 - ${PRICE_THRESHOLDS['Elite 64']} грн</p>
+    `;
+}
+displayPriceInfo();
 
-        // Функція для визначення тренду ціни
-        function getPriceTrend(pricesWithDates) {
-            if (pricesWithDates.length < 2) return '===';
-            
-            const sortedPrices = pricesWithDates.sort((a, b) => new Date(b.date) - new Date(a.date));
-            const recentPrices = sortedPrices.slice(0, Math.min(3, sortedPrices.length));
-            const latestPrice = recentPrices[0].price;
-            const oldestPrice = recentPrices[recentPrices.length - 1].price;
-            
-            if (latestPrice > oldestPrice) return '↑↑↑';
-            if (latestPrice < oldestPrice) return '↓↓↓';
-            return '===';
-        }
+document.getElementById('toggleFilters').addEventListener('click', function() {
+    const filtersDiv = document.getElementById('filters');
+    filtersDiv.classList.toggle('show');
+    this.textContent = filtersDiv.classList.contains('show') ? 'Сховати фільтри' : 'Фільтри';
+});
 
-        // Функція для створення графіку
-        function createPriceChart(pricesWithDates) {
-            const canvas = document.createElement('canvas');
-            canvas.id = 'priceChart';
-            document.getElementById('result').appendChild(canvas);
+function getPriceTrend(pricesWithDates) {
+    if (pricesWithDates.length < 2) return '===';
+    const sortedPrices = pricesWithDates.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const recentPrices = sortedPrices.slice(0, Math.min(3, sortedPrices.length));
+    const latestPrice = recentPrices[0].price;
+    const oldestPrice = recentPrices[recentPrices.length-1].price;
+    if(latestPrice>oldestPrice) return '↑↑↑';
+    if(latestPrice<oldestPrice) return '↓↓↓';
+    return '===';
+}
 
-            const sortedPrices = pricesWithDates.sort((a, b) => new Date(a.date) - new Date(b.date));
-            const labels = sortedPrices.map(item => item.date);
-            const prices = sortedPrices.map(item => item.price);
+function createPriceChart(pricesWithDates, sellPricesWithDates=[]) {
+    const canvas = document.createElement('canvas');
+    canvas.id = 'priceChart';
+    document.getElementById('result').appendChild(canvas);
 
-            new Chart(canvas, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Ціна (грн)',
-                        data: prices,
-                        borderColor: 'blue',
-                        backgroundColor: 'rgba(0, 0, 255, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        },
-                        title: {
-                            display: true,
-                            text: 'Зміна ціни з часом'
-                        }
-                    },
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Дата'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Ціна (грн)'
-                            },
-                            beginAtZero: false
-                        }
-                    }
-                }
-            });
-        }
+    const allDates = [...new Set([...pricesWithDates.map(i=>i.date), ...sellPricesWithDates.map(i=>i.date)])].sort((a,b)=>new Date(a)-new Date(b));
 
-        // Виклик функції для відображення цін
-        displayPriceInfo();
+    const buyPrices = allDates.map(date => { const f = pricesWithDates.find(i=>i.date===date); return f?f.price:null; });
+    const sellPrices = allDates.map(date => { const f = sellPricesWithDates.find(i=>i.date===date); return f?f.price:null; });
 
-        // Показати/сховати фільтри
-        document.getElementById('toggleFilters').addEventListener('click', function() {
-            const filtersDiv = document.getElementById('filters');
-            filtersDiv.classList.toggle('show');
-            this.textContent = filtersDiv.classList.contains('show') ? 'Сховати фільтри' : 'Фільтри';
-        });
-
-        function searchCar() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase().replace(/"/g, '');
-            const resultDiv = document.getElementById('result');
-            const placeholderDiv = document.getElementById('placeholder');
-            const showOldData = document.getElementById('showOldData').checked;
-            const selectedCategory = document.getElementById('categoryFilter').value;
-            const selectedTrend = document.getElementById('trendFilter').value;
-
-            placeholderDiv.style.display = 'none';
-            resultDiv.style.display = 'block';
-
-            if (!searchTerm) {
-                resultDiv.innerHTML = '<div class="warning">Будь ласка, введіть назву машинки для пошуку!</div>';
-                return;
+    new Chart(canvas, {
+        type:'line',
+        data:{labels:allDates,datasets:[
+            {label:'Ціна покупки (грн)', data:buyPrices, borderColor:'blue', backgroundColor:'rgba(0,0,255,0.1)', fill:false, tension:0.4, pointBackgroundColor:'blue', pointRadius:5},
+            {label:'Ціна продажу (грн)', data:sellPrices, borderColor:'red', backgroundColor:'rgba(255,0,0,0.1)', fill:false, tension:0.4, pointBackgroundColor:'red', pointRadius:5}
+        ]},
+        options:{
+            responsive:true,
+            plugins:{
+                legend:{display:true,position:'top'},
+                title:{display:true,text:'Зміна ціни з часом'},
+                tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+ctx.formattedValue+' грн';}}}
+            },
+            scales:{
+                x:{title:{display:true,text:'Дата'}},
+                y:{title:{display:true,text:'Ціна (грн)'}, beginAtZero:false}
             }
-            console.log('Search triggered for:', searchTerm, 'Category:', selectedCategory, 'Trend:', selectedTrend);
-            resultDiv.innerHTML = 'Завантаження...';
+        }
+    });
+}
 
-            Papa.parse('https://raw.githubusercontent.com/shady333/PriceParserRETRO/main/car_prices.csv', {
-                download: true,
-                header: true,
-                complete: function(results) {
-                    console.log('CSV data loaded:', results.data);
-                    let matches = results.data.filter(row => 
-                        row.car_name && row.car_name.toLowerCase().replace(/"/g, '').includes(searchTerm)
-                    );
+function searchCar() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase().replace(/"/g,'');
+    const resultDiv = document.getElementById('result');
+    const placeholderDiv = document.getElementById('placeholder');
+    const showOldData = document.getElementById('showOldData').checked;
+    const selectedCategory = document.getElementById('categoryFilter').value;
+    const selectedTrend = document.getElementById('trendFilter').value;
 
-                    if (selectedCategory !== 'ALL') {
-                        matches = matches.filter(row => row.category === selectedCategory);
+    placeholderDiv.style.display='none';
+    resultDiv.style.display='block';
+
+    if(!searchTerm){resultDiv.innerHTML='<div class="warning">Будь ласка, введіть назву машинки для пошуку!</div>'; return;}
+
+    resultDiv.innerHTML='Завантаження...';
+
+    Papa.parse('https://raw.githubusercontent.com/shady333/PriceParserRETRO/main/car_prices.csv',{
+        download:true,
+        header:true,
+        complete:function(results){
+            let matches = results.data.filter(row=>row.car_name && row.car_name.toLowerCase().replace(/"/g,'').includes(searchTerm));
+            if(selectedCategory!=='ALL'){matches = matches.filter(row=>row.category===selectedCategory);}
+            if(matches.length>0){
+                const processedMatches = matches.map(match=>{
+                    let lastPrice=null,lastDate=null;
+                    const pricesWithDates=[];
+                    for(const key in match){
+                        if(key!=='category' && key!=='car_name' && key!=='image_url' && match[key] && !isNaN(match[key])){
+                            pricesWithDates.push({date:key,price:parseFloat(match[key])});
+                            if(!lastDate || key>lastDate){lastPrice=parseFloat(match[key]); lastDate=key;}
+                        }
                     }
+                    const currentDate=new Date();
+                    const lastDateObj=new Date(lastDate);
+                    const diffDays=Math.floor((currentDate-lastDateObj)/(1000*60*60*24));
+                    return {...match,lastPrice,lastDate,diffDays,priceTrend:getPriceTrend(pricesWithDates),pricesWithDates};
+                });
 
-                    if (matches.length > 0) {
-                        const processedMatches = matches.map(match => {
-                            let lastPrice = null;
-                            let lastDate = null;
-                            const pricesWithDates = [];
-                            
-                            for (const key in match) {
-                                if (key !== 'category' && key !== 'car_name' && key !== 'image_url' && match[key] && !isNaN(match[key])) {
-                                    pricesWithDates.push({ date: key, price: parseFloat(match[key]) });
-                                    if (!lastDate || key > lastDate) {
-                                        lastPrice = parseFloat(match[key]);
-                                        lastDate = key;
+                let filteredMatches = processedMatches;
+                if(selectedTrend!=='ALL'){
+                    filteredMatches=processedMatches.filter(match=>
+                        selectedTrend==='UP'? match.priceTrend==='↑↑↑':
+                        selectedTrend==='DOWN'? match.priceTrend==='↓↓↓':true
+                    );
+                }
+
+                const sortedMatches=filteredMatches.sort((a,b)=>{
+                    const aIsOld=a.diffDays>3?1:0;
+                    const bIsOld=b.diffDays>3?1:0;
+                    if(aIsOld!==bIsOld){return aIsOld-bIsOld;}
+                    return (b.lastPrice||0)-(a.lastPrice||0);
+                });
+
+                let output='<h3>Знайдені машинки:</h3><div class="table-wrapper"><table><tr><th>Зображення</th><th>Назва</th><th>Остання ціна (грн)</th><th>Дата</th><th>Тренд</th></tr>';
+                sortedMatches.forEach(match=>{
+                    if(!showOldData && (!match.lastDate || match.diffDays>10)){return;}
+                    const imageUrl=match.image_url||'https://via.placeholder.com/150';
+                    const rowClass=match.diffDays>3?'warning':'';
+                    const trendClass=match.priceTrend==='↑↑↑'?'trend-up':match.priceTrend==='↓↓↓'?'trend-down':'';
+                    output+=`<tr class="${rowClass}"><td><img src="${imageUrl}" alt="Зображення ${match.car_name}"></td><td>${match.car_name}</td><td>${match.lastPrice||'N/A'}</td><td>${match.lastDate||'N/A'}</td><td class="${trendClass}">${match.priceTrend}</td></tr>`;
+                });
+                output+='</table></div>';
+                resultDiv.innerHTML=output;
+
+                // Якщо є лише одна машинка, підтягуємо графік з другим CSV
+                if(filteredMatches.length===1){
+                    const car=filteredMatches[0];
+                    const pricesWithDates=car.pricesWithDates;
+                    Papa.parse('https://raw.githubusercontent.com/shady333/PriceParserRETRO/main/sell_car_prices.csv',{
+                        download:true,
+                        header:true,
+                        complete:function(sellResults){
+                            const sellMatch=sellResults.data.find(row=>row.car_name && row.car_name.toLowerCase()===car.car_name.toLowerCase());
+                            let sellPricesWithDates=[];
+                            if(sellMatch){
+                                for(const key in sellMatch){
+                                    if(key!=='car_name' && sellMatch[key]){
+                                        sellPricesWithDates.push({date:key,price:parseFloat(sellMatch[key])});
                                     }
                                 }
                             }
-                            
-                            const currentDate = new Date();
-                            const lastDateObj = new Date(lastDate);
-                            const diffDays = Math.floor((currentDate - lastDateObj) / (1000 * 60 * 60 * 24));
-                            
-                            return {
-                                ...match,
-                                lastPrice,
-                                lastDate,
-                                diffDays,
-                                priceTrend: getPriceTrend(pricesWithDates),
-                                pricesWithDates
-                            };
-                        });
-
-                        let filteredMatches = processedMatches;
-                        if (selectedTrend !== 'ALL') {
-                            filteredMatches = processedMatches.filter(match => 
-                                selectedTrend === 'UP' ? match.priceTrend === '↑↑↑' : 
-                                selectedTrend === 'DOWN' ? match.priceTrend === '↓↓↓' : true
-                            );
-                        }
-
-                        const sortedMatches = filteredMatches.sort((a, b) => {
-                            const aIsOld = a.diffDays > 3 ? 1 : 0;
-                            const bIsOld = b.diffDays > 3 ? 1 : 0;
-                            
-                            if (aIsOld !== bIsOld) {
-                                return aIsOld - bIsOld;
-                            }
-                            return (b.lastPrice || 0) - (a.lastPrice || 0);
-                        });
-
-                        let output = '<h3>Знайдені машинки:</h3><div class="table-wrapper"><table><tr><th>Зображення</th><th>Назва</th><th>Остання ціна (грн)</th><th>Дата</th><th>Тренд</th></tr>';
-                        sortedMatches.forEach(match => {
-                            if (!showOldData && (!match.lastDate || match.diffDays > 10)) {
-                                return;
-                            }
-
-                            const imageUrl = match.image_url || 'https://via.placeholder.com/150';
-                            const rowClass = match.diffDays > 3 ? 'warning' : '';
-                            const trendClass = match.priceTrend === '↑↑↑' ? 'trend-up' : 
-                                             match.priceTrend === '↓↓↓' ? 'trend-down' : '';
-                            
-                            output += `<tr class="${rowClass}">
-                                <td><img src="${imageUrl}" alt="Зображення ${match.car_name}"></td>
-                                <td>${match.car_name}</td>
-                                <td>${match.lastPrice || 'N/A'}</td>
-                                <td>${match.lastDate || 'N/A'}</td>
-                                <td class="${trendClass}">${match.priceTrend}</td>
-                            </tr>`;
-                        });
-                        output += '</table></div>';
-
-                        if (output.includes('<tr')) {
-                            if (filteredMatches.length === 1) {
-                                const pricesWithDates = filteredMatches[0].pricesWithDates;
-                                if (pricesWithDates.length > 0) {
-                                    const lastPriceEntry = pricesWithDates.reduce((max, current) => max.date > current.date ? max : current);
-                                    const minPriceEntry = pricesWithDates.reduce((min, current) => min.price < current.price ? min : current);
-                                    const maxPriceEntry = pricesWithDates.reduce((max, current) => max.price > current.price ? max : current);
-
-                                    output += `
-                                        <p><strong>Остання ціна:</strong> ${lastPriceEntry.price} грн (дата: ${lastPriceEntry.date})</p>
-                                        <p><strong>Мінімальна ціна:</strong> ${minPriceEntry.price} грн (дата: ${minPriceEntry.date})</p>
-                                        <p><strong>Максимальна ціна:</strong> ${maxPriceEntry.price} грн (дата: ${maxPriceEntry.date})</p>
-                                    `;
-
-                                    // Додаємо графік
-                                    output += `<canvas id="priceChart"></canvas>`;
-                                } else {
-                                    output += '<p>Немає даних для мінімальної та максимальної цін.</p>';
-                                }
-                            }
-                            resultDiv.innerHTML = output;
-
-                            // Створюємо графік після рендерингу HTML
-                            if (filteredMatches.length === 1 && filteredMatches[0].pricesWithDates.length > 0) {
-                                createPriceChart(filteredMatches[0].pricesWithDates);
-                            }
-                        } else {
-                            resultDiv.innerHTML = 'Машинку не знайдено або дані застарілі (більше 10 днів), або не відповідають вибраному тренду.';
-                        }
-                    } else {
-                        resultDiv.innerHTML = 'Машинку не знайдено';
-                    }
-                },
-                error: function(error) {
-                    console.error('Error loading CSV:', error);
-                    resultDiv.innerHTML = 'Помилка завантаження CSV: ' + error.message;
+                            createPriceChart(pricesWithDates,sellPricesWithDates);
+                        },
+                        error:function(error){console.error('Error loading sell CSV:',error); createPriceChart(pricesWithDates,[]);}
+                    });
                 }
-            });
-        }
 
-        document.getElementById('searchInput').addEventListener('input', function(event) {
-            if (!event.target.value) {
-                document.getElementById('result').style.display = 'none';
-                document.getElementById('placeholder').style.display = 'flex';
-            }
-        });
+            } else {resultDiv.innerHTML='Машинку не знайдено';}
+        },
+        error:function(error){resultDiv.innerHTML='Помилка завантаження CSV: '+error.message;}
+    });
+}
 
-        document.getElementById('categoryFilter').addEventListener('change', function() {
-            if (document.getElementById('searchInput').value) {
-                searchCar();
-            }
-        });
+document.getElementById('searchInput').addEventListener('input',function(event){
+    if(!event.target.value){
+        document.getElementById('result').style.display='none';
+        document.getElementById('placeholder').style.display='flex';
+    }
+});
 
-        document.getElementById('trendFilter').addEventListener('change', function() {
-            if (document.getElementById('searchInput').value) {
-                searchCar();
-            }
-        });
-
-        document.getElementById('searchButton').addEventListener('click', searchCar);
-        document.getElementById('searchButton').addEventListener('touchstart', searchCar);
-        document.getElementById('searchInput').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                searchCar();
-            }
-        });
-    </script>
+document.getElementById('categoryFilter').addEventListener('change',function(){
+    if(document.getElementById('searchInput').value){searchCar();}
+});
+document.getElementById('trendFilter').addEventListener('change',function(){
+    if(document.getElementById('searchInput').value){searchCar();}
+});
+document.getElementById('searchButton').addEventListener('click',searchCar);
+document.getElementById('searchButton').addEventListener('touchstart',searchCar);
+document.getElementById('searchInput').addEventListener('keydown',function(event){
+    if(event.key==='Enter'){searchCar();}
+});
+</script>
 </body>
 </html>

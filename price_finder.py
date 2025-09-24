@@ -21,21 +21,21 @@ HEADERS = {
     "Accept-Language": "en-US,en;q=0.5"
 }
 PRICE_THRESHOLDS = {
-    'premium': 450,
-    'rlc': 1600,
-    'super_treasure_hunt': 1000,
-    'diorama': 800,
-    'matchbox': 110,
-    'treasure_hunts': 110,
-    'team_transport': 650,
-    'mainline': 110
+    'premium': 350,
+    'rlc': 1200,
+    'super_treasure_hunt': 900,
+    'diorama': 600,
+    'matchbox': 90,
+    'treasure_hunts': 90,
+    'team_transport': 550,
+    'mainline': 90
 }
 WORDS_TO_IGNORE = {
     "Набір"
 }
-PAGES_PER_DAY = 40
+PAGES_PER_DAY = 60
 SAVE_INTERVAL = 5
-MAX_WORKERS = 15
+MAX_WORKERS = 20
 
 # Потокобезпечний список для даних
 BUY_DATA = []  # For buying prices
@@ -143,7 +143,15 @@ def scrape_product_page(url):
         if not sell_price_elem:
             print(f"Помилка: не знайдено ціну продажу на {url}")
             return None
-        sell_price_text = sell_price_elem.text.strip()
+
+        # Шукаємо акційну ціну
+        promo_price_elem = sell_price_elem.find('span', class_='red-text')
+        if promo_price_elem:
+            sell_price_text = promo_price_elem.text.strip()
+        else:
+            # Якщо акційної ціни немає — беремо всю ціну
+            sell_price_text = sell_price_elem.text.strip()
+        
         sell_price_text = re.sub(r'[^\d.]', '', sell_price_text)
         sell_price = float(sell_price_text)
 

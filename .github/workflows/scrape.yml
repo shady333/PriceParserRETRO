@@ -6,6 +6,7 @@ on:
     - cron: '0 6 * * *'   # 08:00 CEST — ранок
     - cron: '0 10 * * *'   # 12:00 CEST — обід
     - cron: '0 14 * * *'  # 16:00 CEST — по обіді
+    - cron: '0 18 * * *'  # 20:00 CEST — ввечері
   workflow_dispatch:
 
 permissions:

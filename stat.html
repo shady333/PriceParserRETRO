@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Статистика цін Hot Wheels</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    button { margin: 5px; padding: 8px 12px; cursor: pointer; }
+    select { padding: 6px; margin-left:10px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 15px; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
+    th { background: #eee; }
+    img { max-width: 60px; }
+    .note { font-size: 14px; color: #555; margin-top:5px; margin-bottom:5px; }
+  </style>
+</head>
+<body>
+  <h1>📊 Статистика купівельних цін Hot Wheels</h1>
+
+  <div>
+    Категорія:
+    <select id="categoryFilter">
+      <option value="All">Всі категорії</option>
+    </select>
+  </div>
+
+  <div style="margin-top:10px;">
+    <button onclick="showTopGrowth()">Топ-10 зростання ціни</button>
+    <button onclick="showTopDrop()">Топ-10 падіння ціни</button>
+    <button onclick="showStopped()">Топ-10 зниклі</button>
+    <button onclick="showNew()">Топ-10 нові</button>
+    <button onclick="showExpensive()">Топ-10 найдорожчих</button>
+    <button onclick="showCheap()">Топ-10 найдешевших</button>
+    <button onclick="showVolatile()">Топ-10 волатильних</button>
+    <button onclick="showStable()">Топ-10 стабільних</button>
+  </div>
+
+  <div id="note" class="note"></div>
+  <div id="output"></div>
+
+  <script>
+    const buyCsvUrl = 'https://raw.githubusercontent.com/shady333/PriceParserRETRO/main/car_prices.csv';
+    let cars = [];
+    let dateColumns = [];
+
+    Papa.parse(buyCsvUrl, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: function(results) {
+        const data = results.data;
+        const columns = results.meta.fields;
+        dateColumns = columns.slice(3); // з 4-ї колонки починаються дати
+
+        // Отримуємо унікальні категорії
+        const categories = Array.from(new Set(data.map(r => r.category).filter(Boolean))).sort();
+        const catSel = document.getElementById('categoryFilter');
+        categories.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = c;
+          catSel.appendChild(opt);
+        });
+
+        cars = data.map(row => {
+          const prices = dateColumns.map(d => parseFloat(row[d]) || null);
+          return {
+            category: row.category,
+            name: row.car_name,
+            image: row.image_url,
+            prices: prices
+          };
+        });
+
+        console.log("✅ Дані завантажено:", cars);
+      }
+    });
+
+    function getFilteredCars() {
+      const cat = document.getElementById('categoryFilter').value;
+      if(cat === 'All') return cars;
+      return cars.filter(c => c.category === cat);
+    }
+
+    function getLastPrice(prices) {
+      for (let i = prices.length - 1; i >= 0; i--) {
+        if (prices[i] !== null) return { price: prices[i], date: dateColumns[i] };
+      }
+      return { price: null, date: null };
+    }
+
+    function getFirstPrice(prices) {
+      for (let i = 0; i < prices.length; i++) {
+        if (prices[i] !== null) return { price: prices[i], date: dateColumns[i] };
+      }
+      return { price: null, date: null };
+    }
+
+    function showTable(list, title, extraNote="") {
+      let html = `<h2>${title}</h2>`;
+      if(extraNote) html += `<div class="note">${extraNote}</div>`;
+      html += `<table><tr>
+        <th>Картинка</th><th>Назва</th><th>Категорія</th><th>Поточна ціна</th><th>Додатково</th>
+      </tr>`;
+      list.forEach(c => {
+        html += `<tr>
+          <td><img src="${c.image || ''}"></td>
+          <td>${c.name}</td>
+          <td>${c.category}</td>
+          <td>${c.last?.price ?? '-'}</td>
+          <td>${c.metric ?? ''}</td>
+        </tr>`;
+      });
+      html += "</table>";
+      document.getElementById("output").innerHTML = html;
+    }
+
+    function showTopGrowth() {
+      const list = getFilteredCars().map(c => {
+        const first = getFirstPrice(c.prices);
+        const last = getLastPrice(c.prices);
+        const diff = (first.price && last.price) ? last.price - first.price : 0;
+        return { ...c, last, metric: diff > 0 ? `+${diff.toFixed(2)}` : null, diff };
+      }).filter(c => c.diff > 0).sort((a,b) => b.diff - a.diff).slice(0,10);
+      showTable(list, "Топ-10 зростання ціни");
+    }
+
+    function showTopDrop() {
+      const list = getFilteredCars().map(c => {
+        const first = getFirstPrice(c.prices);
+        const last = getLastPrice(c.prices);
+        const diff = (first.price && last.price) ? last.price - first.price : 0;
+        return { ...c, last, metric: diff < 0 ? diff.toFixed(2) : null, diff };
+      }).filter(c => c.diff < 0).sort((a,b) => a.diff - b.diff).slice(0,10);
+      showTable(list, "Топ-10 падіння ціни");
+    }
+
+    function showStopped() {
+      const list = getFilteredCars().filter(c => {
+        const last5 = c.prices.slice(-5);
+        return last5.every(v => v === null) && getLastPrice(c.prices).price !== null;
+      }).map(c => {
+        const last = getLastPrice(c.prices);
+        return { ...c, last, metric: `Остання ціна: ${last.price} (${last.date})` };
+      }).slice(0,10);
+      showTable(list, "Топ-10 зниклі моделі");
+    }
+
+    function showNew() {
+      const list = getFilteredCars().filter(c => {
+        const last3 = c.prices.slice(-3);
+        const before = c.prices.slice(0,-3);
+        return last3.some(v => v !== null) && before.every(v => v === null);
+      }).map(c => {
+        const first = getFirstPrice(c.prices);
+        return { ...c, last: getLastPrice(c.prices), metric: `Перша ціна: ${first.price} (${first.date})` };
+      }).slice(0,10);
+      showTable(list, "Топ-10 нові моделі");
+    }
+
+    function showExpensive() {
+      const list = getFilteredCars().map(c => {
+        const last = getLastPrice(c.prices);
+        return { ...c, last, metric: last.price };
+      }).filter(c => c.last?.price !== null)
+        .sort((a,b) => b.last.price - a.last.price).slice(0,10);
+      showTable(list, "Топ-10 найдорожчих");
+    }
+
+    function showCheap() {
+      const list = getFilteredCars().map(c => {
+        const last = getLastPrice(c.prices);
+        return { ...c, last, metric: last.price };
+      }).filter(c => c.last?.price !== null)
+        .sort((a,b) => a.last.price - b.last.price).slice(0,10);
+      showTable(list, "Топ-10 найдешевших");
+    }
+
+    function showVolatile() {
+      const list = getFilteredCars().map(c => {
+        const values = c.prices.filter(v=>v!==null);
+        if(values.length < 2) return null;
+        const last = getLastPrice(c.prices);
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        return {...c, last, metric: `Діапазон: ${min} – ${max}`};
+      }).filter(Boolean).sort((a,b)=> (Math.max(...b.prices.filter(v=>v!==null)) - Math.min(...b.prices.filter(v=>v!==null))) -
+                                     (Math.max(...a.prices.filter(v=>v!==null)) - Math.min(...a.prices.filter(v=>v!==null)))).slice(0,10);
+      showTable(list, "Топ-10 волатильних моделей", "Волатильність = різниця між мінімальною та максимальною ціною за період");
+    }
+
+    function showStable() {
+      const list = getFilteredCars().map(c => {
+        const values = c.prices.filter(v=>v!==null);
+        if(values.length < 2) return null;
+        const last = getLastPrice(c.prices);
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        return {...c, last, metric: `Діапазон: ${min} – ${max}`};
+      }).filter(Boolean).sort((a,b)=> (Math.max(...a.prices.filter(v=>v!==null)) - Math.min(...a.prices.filter(v=>v!==null))) -
+                                     (Math.max(...b.prices.filter(v=>v!==null)) - Math.min(...b.prices.filter(v=>v!==null)))).slice(0,10);
+      showTable(list, "Топ-10 стабільних моделей", "Стабільність = мінімальна різниця між цінами за період");
+    }
+  </script>
+</body>
+</html>

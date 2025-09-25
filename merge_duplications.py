@@ -3,12 +3,12 @@ import re
 import sys
 
 def extract_product_code_and_color(car_name):
-    # Код товару: JBM19 або HVL09/HVN37
+    # Код товару: GBW83, JBM19 або HNR88/HRW51
     code_pattern = r'[A-Z]{3,4}\d{2}(?:/[A-Z]{3,4}\d{2})?'
     code_match = re.search(code_pattern, car_name)
-    product_code = code_match.group(0) if code_match else car_name
+    product_code = code_match.group(0) if code_match else None  # Повертаємо None, якщо код не знайдено
 
-    # Колір: останнє слово або два слова (наприклад, "Blue" або "Metallic Red")
+    # Колір: останнє слово або два слова (наприклад, "Yellow" або "Metallic Red")
     color_pattern = r'\b(?:[A-Z][a-z]*(?:\s[A-Z][a-z]*)?)\s*$'
     color_match = re.search(color_pattern, car_name)
     color = color_match.group(0) if color_match else 'Unknown'
@@ -30,8 +30,13 @@ def merge_duplicates(input_file, output_file=None):
     # Додаємо колонки product_code і color
     df[['product_code', 'color']] = df['car_name'].apply(lambda x: pd.Series(extract_product_code_and_color(x)))
 
-    # Створюємо унікальний ідентифікатор
-    df['unique_id'] = df['product_code'] + '_' + df['color']
+    # Перевіряємо, чи є рядки без коду товару
+    if df['product_code'].isna().any():
+        print("Попередження: Деякі рядки не містять коду товару. Вони не будуть об’єднані.")
+        df = df.dropna(subset=['product_code'])  # Видаляємо рядки без коду
+
+    # Створюємо унікальний ідентифікатор, включаючи category
+    df['unique_id'] = df['category'] + '_' + df['product_code'] + '_' + df['color']
 
     # Колонки з датами
     date_columns = [col for col in df.columns if col.startswith('2025-')]
@@ -71,7 +76,6 @@ def merge_duplicates(input_file, output_file=None):
     merged_df.to_csv(output_file, index=False)
     print(f"Дублікати об’єднано, результат збережено в {output_file}")
 
-# Використання через командний рядок або виклик функції
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Використання: python script.py input_file [output_file]")

@@ -261,8 +261,8 @@ def scrape_page(page_num):
                             'image_url': result['image_url']
                         })
 
-        next_page = soup.find('li', class_='item', attrs={'data-p': str(page_num + 1)})
-        return bool(next_page)
+        # next_page = soup.find('li', class_='item', attrs={'data-p': str(page_num + 1)})
+        return True
 
     except Exception as e:
         print(f"Помилка на сторінці {url}: {e}")
@@ -277,6 +277,7 @@ def main():
     max_pages = max([int(li['data-p']) for li in pagination if 'data-p' in li.attrs], default=1)
 
     current_page = 0
+    iteration = 1
     if os.path.exists(PROGRESS_FILE):
         with open(PROGRESS_FILE, "r") as f:
             current_page = int(f.read().strip())
@@ -290,11 +291,11 @@ def main():
             f.write(str(current_page))
 
     start_page = current_page + 1
-    end_page = min(start_page + PAGES_PER_DAY - 1, max_pages)
+    end_page = ((start_page - 1 + PAGES_PER_DAY) % max_pages) + 1
 
     print(f"Start page: {start_page}, End page: {end_page}, Max pages: {max_pages}")
 
-    while start_page <= end_page:
+    while (start_page != end_page) or (iteration < PAGES_PER_DAY):
         if not scrape_page(start_page):
             print(f"Парсинг завершено на сторінці {start_page}")
             break
@@ -309,6 +310,9 @@ def main():
                     SELL_DATA = []
 
         start_page += 1
+        iteration += 1
+        if start_page > max_pages:
+            start_page = 0
         time.sleep(2)
 
         with open(PROGRESS_FILE, "w") as f:

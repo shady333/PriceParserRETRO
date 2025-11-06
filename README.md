@@ -69,3 +69,4 @@ Feel free to submit issues or pull requests. Suggestions for improving scraping 
 
 This project is open-source. No specific license is defined yet—feel free to add one (e.g., MIT) if desired.
 
+

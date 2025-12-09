@@ -1637,3 +1637,5 @@
 [2025-12-09 10:44:01] Помилка на сторінці https://retromagaz.com/product/masinka-bazova-hot-wheels-chill-mill-treasure-hunts-fast-foodie-164-jbc28-purple: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2025-12-09 10:44:01] Помилка на сторінці https://retromagaz.com/product/tematicna-masinka-matchbox-1969-ford-mustang-boss-302-chase-moving-parts-164-jbx02-orange: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2025-12-09 10:44:01] Помилка на сторінці https://retromagaz.com/product/masinka-premium-hot-wheels-kick-sauber-f1-team-77-formula-one-collection-164-jbm13-green: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
+[2025-12-09 14:14:32] Немає SKU: Контейнер Hot Wheels на 8 Машинок 1:64 HWCC8A Blue | URL: https://retromagaz.com/product/konteiner-hot-wheels-na-8-masinok-164-hwcc8a-blue
+[2025-12-09 14:14:57] Немає SKU: Контейнер Hot Wheels на 28 Машинок 1:64 HWCC8C Blue | URL: https://retromagaz.com/product/konteiner-hot-wheels-na-28-masinok-164-hwcc8c-blue

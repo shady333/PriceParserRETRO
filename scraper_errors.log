@@ -3361,3 +3361,6 @@
 [2026-01-06 22:20:35] Немає SKU: Чохол Захисний RMC Для Машинки Базова Hot Wheels та Matchbox | URL: https://retromagaz.com/product/chokhol-zakhisniy-rmc-dlya-mashinki-bazova-hot-wheels-clear-white-noviy
 [2026-01-06 22:26:49] Немає SKU: Машинка Велике Місто Matchbox Audi R8 Super Chase Showroom 1:64 Orange | URL: https://retromagaz.com/product/masinka-velike-misto-matchbox-audi-r8-super-chase-showroom-164-orange
 [2026-01-06 22:27:00] Немає SKU: Чохол Захисний RMC Для Машинки Тематична Hot Wheels та Matchbox | URL: https://retromagaz.com/product/chokhol-zakhisniy-rmc-dlya-mashinki-tematichna-hot-wheels-clear-white-noviy
+[2026-01-07 06:40:02] Помилка на сторінці https://retromagaz.com/product/mashinka-bazova-hot-wheels-corvette-c6-roadsters-htc14-orange-noviy: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
+[2026-01-07 06:40:04] Помилка на сторінці https://retromagaz.com/product/mashinka-bazova-hot-wheels-nissan-skyline-rs-kdr30-j-imports-htc40-purple-noviy: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
+[2026-01-07 06:48:23] Немає SKU: Машинка Велике Місто Matchbox 2019 Subaru Forester Off-Road 1:64 Blue | URL: https://retromagaz.com/product/masinka-velike-misto-matchbox-2019-subaru-forester-off-road-164-blue

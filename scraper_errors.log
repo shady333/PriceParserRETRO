@@ -6019,3 +6019,5 @@
 [2026-02-19 19:01:02] Помилка на сторінці https://retromagaz.com/product/masinka-bazova-hot-wheels-triumph-tr6-treasure-hunts-track-champs-164-jbc34-grey: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2026-02-19 19:01:18] Помилка на сторінці https://retromagaz.com/product/masinka-premium-mini-gt-nissan-skyline-gt-r-r34-kaido-works-shinjuku-v2-164-khmg158-blue: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2026-02-19 19:01:19] Помилка на сторінці https://retromagaz.com/product/masinka-premium-hot-wheels-95-lamborghini-diablo-sv-boulevard-164-jbl13-yellow: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
+[2026-02-19 22:31:20] Немає SKU: Цукерки Жувальні Hot Wheels Gummies 100g | URL: https://retromagaz.com/product/cukerki-zuvalni-hot-wheels-gummies-100g
+[2026-02-19 22:36:49] Помилка на сторінці https://retromagaz.com/product/mashinka-bazova-hot-wheels-nissan-fairlady-z-speed-graphics-fjy42-red-noviy: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out.

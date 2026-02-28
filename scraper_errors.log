@@ -7372,3 +7372,6 @@
 [2026-02-28 18:45:18] Помилка на сторінці https://retromagaz.com/product/masinka-premium-hot-wheels-porsche-935-chase-race-day-164-hkc63-black: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2026-02-28 18:45:18] Помилка на сторінці https://retromagaz.com/product/tematicna-masinka-matchbox-1964-porsche-911-moving-parts-164-jhv38-blue: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2026-02-28 18:45:18] Помилка на сторінці https://retromagaz.com/product/masinka-premium-hot-wheels-1995-honda-integra-type-r-red-line-club-rlc-164-jcp06-blue: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
+[2026-02-28 22:29:10] Немає SKU: Контейнер Hot Wheels на 28 Машинок 1:64 HWCC8C Blue | URL: https://retromagaz.com/product/konteiner-hot-wheels-na-28-masinok-164-hwcc8c-blue
+[2026-02-28 22:29:40] Немає SKU: Машинка Велике Місто Matchbox Audi R8 Super Chase Showroom 1:64 Orange | URL: https://retromagaz.com/product/masinka-velike-misto-matchbox-audi-r8-super-chase-showroom-164-orange
+[2026-02-28 22:29:43] Немає SKU: Контейнер Hot Wheels на 8 Машинок 1:64 HWCC8A Blue | URL: https://retromagaz.com/product/konteiner-hot-wheels-na-8-masinok-164-hwcc8a-blue

@@ -8763,3 +8763,5 @@
 [2026-03-18 11:11:46] Помилка на сторінці https://retromagaz.com/product/mashinka-bazova-hot-wheels-raijin-express-hcx59-art-cars-gold-1sht-noviy: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2026-03-18 11:11:46] Помилка на сторінці https://retromagaz.com/product/mashinka-bazova-hot-wheels-67-ford-gt40-mkiv-hcw67-retro-racers-white-1sht-noviy: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2026-03-18 11:11:46] Помилка на сторінці https://retromagaz.com/product/mashinka-bazova-hot-wheels-ford-focus-rs-hcx73-hatchbacks-orange-1sht-noviy: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
+[2026-03-18 15:01:55] Немає SKU: Контейнер Hot Wheels на 28 Машинок 1:64 HWCC8C Blue | URL: https://retromagaz.com/product/konteiner-hot-wheels-na-28-masinok-164-hwcc8c-blue
+[2026-03-18 15:02:32] Немає SKU: Контейнер Hot Wheels на 8 Машинок 1:64 HWCC8A Blue | URL: https://retromagaz.com/product/konteiner-hot-wheels-na-8-masinok-164-hwcc8a-blue

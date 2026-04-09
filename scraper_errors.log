@@ -16330,3 +16330,6 @@
 [2026-04-09 15:27:13] Помилка на сторінці https://retromagaz.com/product/mashinka-bazova-hot-wheels-porsche-911-gt3-hct22-factory-fresh-blue-1sht-noviy: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2026-04-09 15:27:14] Помилка на сторінці https://retromagaz.com/product/mashinka-bazova-hot-wheels-98-honda-prelude-gtb05-j-imports-yellow-1sht-noviy: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2026-04-09 15:29:25] Немає SKU: Шоколадне Яйце Kinder GranSurprise Hot Wheels 150g | URL: https://retromagaz.com/product/sokoladne-iaice-kinder-gransurprise-hot-wheels-150g
+[2026-04-09 19:09:39] Немає SKU: Цукерки Жувальні Hot Wheels Gummies 100g | URL: https://retromagaz.com/product/cukerki-zuvalni-hot-wheels-gummies-100g
+[2026-04-09 19:09:46] Помилка на сторінці https://retromagaz.com/product/masinka-premium-hot-wheels-porsche-porsche-935-boulevard-164-jbl17-black: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
+[2026-04-09 19:09:47] Помилка на сторінці https://retromagaz.com/product/tematicna-masinka-hot-wheels-porsche-porsche-911-gt3-rs-gran-turismo-164-hrv65-yellow: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)

@@ -84565,3 +84565,6 @@
 [2026-10-19 19:41:19] Помилка на сторінці https://retromagaz.com/product/tematicna-masinka-matchbox-2019-dodge-ram-ambulance-the-movie-series-moving-parts-164-jnd38-white: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2026-10-19 19:44:23] Немає SKU: Контейнер Hot Wheels на 8 Машинок 1:64 HWCC8A Blue | URL: https://retromagaz.com/product/konteiner-hot-wheels-na-8-masinok-164-hwcc8a-blue
 [2026-10-19 19:44:45] Немає SKU: Контейнер Hot Wheels на 28 Машинок 1:64 HWCC8C Blue | URL: https://retromagaz.com/product/konteiner-hot-wheels-na-28-masinok-164-hwcc8c-blue
+[2026-10-19 22:02:48] Помилка на сторінці https://retromagaz.com/product/mashinka-bazova-hot-wheels-mclaren-f1-hcx13-factory-fresh-orange-1sht-noviy: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+[2026-10-19 22:02:52] Помилка на сторінці https://retromagaz.com/product/tematicna-masinka-hot-wheels-1968-dodge-charger-dominic-toretto-fast-furious-164-hnr88hrw50-black: ('Connection broken: IncompleteRead(200 bytes read, 4764 more expected)', IncompleteRead(200 bytes read, 4764 more expected))
+[2026-10-19 22:05:14] Немає SKU: Машинка Велике Місто Matchbox 1994 Lexus LS 400 Highway 1:64 Black | URL: https://retromagaz.com/product/masinka-velike-misto-matchbox-1994-lexus-ls-400-highway-164-black

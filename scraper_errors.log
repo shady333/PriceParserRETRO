@@ -85860,3 +85860,4 @@
 [2026-10-29 19:31:38] Помилка на сторінці https://retromagaz.com/product/masinka-premium-2st-hot-wheels-formula-1-team-red-bull-racing-max-verstappen-yuki-tsunoda-164-jmm97-black: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2026-10-29 19:31:39] Помилка на сторінці https://retromagaz.com/product/masinka-premium-2st-hot-wheels-porsche-911-turbo-930-quadra-turbo-r-v-tech-2-packs-164-jhw53-grey: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2026-10-29 19:32:08] Помилка на сторінці https://retromagaz.com/product/masinka-premium-hot-wheels-enzo-ferrari-boulevard-164-jhw22-red: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
+[2026-10-29 22:31:05] Помилка на сторінці https://retromagaz.com/hot-wheels?page=69: ('Connection broken: IncompleteRead(4465 bytes read, 3633 more expected)', IncompleteRead(4465 bytes read, 3633 more expected))

@@ -86885,3 +86885,10 @@
 [2026-11-04 14:00:11] Помилка на сторінці https://retromagaz.com/product/mashinka-bazova-hot-wheels-porsche-911-gt3-exotics-164-hkh97-red-1sht-noviy: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2026-11-04 14:01:13] Помилка на сторінці https://retromagaz.com/product/tematicna-masinka-hot-wheels-lancia-rally-037-rally-champs-164-jnf48-black: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2026-11-04 14:05:08] Помилка на сторінці https://retromagaz.com/product/masinka-premium-hot-wheels-pandem-datsun-280zx-elite-64-164-jnf06-red: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
+[2026-11-04 17:56:25] Немає SKU: Машинка Велике Місто Matchbox 1994 Lexus LS 400 Highway 1:64 Black | URL: https://retromagaz.com/product/masinka-velike-misto-matchbox-1994-lexus-ls-400-highway-164-black
+[2026-11-04 17:57:43] Немає SKU: Шоколадне Яйце Kinder GranSurprise Hot Wheels 150g | URL: https://retromagaz.com/product/sokoladne-iaice-kinder-gransurprise-hot-wheels-150g
+[2026-11-04 17:57:44] Немає SKU: Цукерки Жувальні Hot Wheels Gummies 100g | URL: https://retromagaz.com/product/cukerki-zuvalni-hot-wheels-gummies-100g
+[2026-11-04 18:03:00] Помилка на сторінці https://retromagaz.com/product/mashinka-premium-hot-wheels-nissan-240sx-skyline-gt-r-volkswagen-jetta-maxima-ford-f-150-fast-furious-hkf08-yellow-5sht-noviy: ('Connection broken: IncompleteRead(198 bytes read, 5312 more expected)', IncompleteRead(198 bytes read, 5312 more expected))
+[2026-11-04 18:05:24] Немає SKU: Гра Sony PlayStation 2 Hot Wheels: World Race Europe Англійська Версія Вживаний | URL: https://retromagaz.com/product/gra-sony-playstation-2-hot-wheels-world-race-europe-angliiska-versiia-bu
+[2026-11-04 18:05:25] Немає SKU: Контейнер Hot Wheels на 8 Машинок 1:64 HWCC8A Blue | URL: https://retromagaz.com/product/konteiner-hot-wheels-na-8-masinok-164-hwcc8a-blue
+[2026-11-04 18:05:25] Немає SKU: Контейнер Hot Wheels на 28 Машинок 1:64 HWCC8C Blue | URL: https://retromagaz.com/product/konteiner-hot-wheels-na-28-masinok-164-hwcc8c-blue

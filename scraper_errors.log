@@ -86945,3 +86945,8 @@
 [2026-11-04 20:45:11] Помилка на сторінці https://retromagaz.com/product/masinka-premium-hot-wheels-datsun-620-car-culture-164-jkf12-yellow: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2026-11-04 20:45:11] Помилка на сторінці https://retromagaz.com/product/masinka-premium-hot-wheels-1969-ford-mustang-boss-302-fast-furious-164-jhw72-white: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2026-11-04 20:45:11] Помилка на сторінці https://retromagaz.com/product/tematicna-masinka-hot-wheels-lancia-rally-037-rally-champs-164-jnf48-black: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
+[2026-11-04 23:16:38] Немає SKU: Напій Hot Wheels Race Drink 250ml | URL: https://retromagaz.com/product/napiy-hot-wheels-race-drink-tutti-frutti-250ml
+[2026-11-04 23:21:40] Немає SKU: Машинка Велике Місто Matchbox 1994 Lexus LS 400 Highway 1:64 Black | URL: https://retromagaz.com/product/masinka-velike-misto-matchbox-1994-lexus-ls-400-highway-164-black
+[2026-11-04 23:23:09] Немає SKU: Цукерки Жувальні Hot Wheels Gummies 100g | URL: https://retromagaz.com/product/cukerki-zuvalni-hot-wheels-gummies-100g
+[2026-11-04 23:23:10] Немає SKU: Шоколадне Яйце Kinder GranSurprise Hot Wheels 150g | URL: https://retromagaz.com/product/sokoladne-iaice-kinder-gransurprise-hot-wheels-150g
+[2026-11-04 23:25:56] Помилка на сторінці https://retromagaz.com/product/mashinka-premium-hot-wheels-70-rover-p6-group-2-ta-transporter-hw-rally-hauler-team-transport-flf56hkf45-red-2sht-noviy: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))

@@ -86982,3 +86982,12 @@
 [2026-11-05 02:10:06] Помилка на сторінці https://retromagaz.com/product/masinka-premium-2st-hot-wheels-plymouth-duster-funny-car-65-mercury-comet-cyclone-2-packs-164-jhw56-black: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2026-11-05 14:15:04] Немає SKU: Напій Hot Wheels Race Drink 250ml | URL: https://retromagaz.com/product/napiy-hot-wheels-race-drink-tutti-frutti-250ml
 [2026-11-05 14:21:15] Помилка на сторінці https://retromagaz.com/product/mashinka-bolshoy-gorod-matchbox-2019-subaru-forester-off-road-hvp09-light-blue-noviy: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
+[2026-11-05 17:56:41] Немає SKU: Гра Sony PlayStation 2 Hot Wheels: World Race Europe Англійська Версія Вживаний | URL: https://retromagaz.com/product/gra-sony-playstation-2-hot-wheels-world-race-europe-angliiska-versiia-bu
+[2026-11-05 17:56:42] Немає SKU: Контейнер Hot Wheels на 28 Машинок 1:64 HWCC8C Blue | URL: https://retromagaz.com/product/konteiner-hot-wheels-na-28-masinok-164-hwcc8c-blue
+[2026-11-05 17:58:05] Немає SKU: Контейнер Hot Wheels на 8 Машинок 1:64 HWCC8A Blue | URL: https://retromagaz.com/product/konteiner-hot-wheels-na-8-masinok-164-hwcc8a-blue
+[2026-11-05 17:58:40] Немає SKU: Машинка Велике Місто Matchbox 1994 Lexus LS 400 Highway 1:64 Black | URL: https://retromagaz.com/product/masinka-velike-misto-matchbox-1994-lexus-ls-400-highway-164-black
+[2026-11-05 17:59:47] Немає SKU: Цукерки Жувальні Hot Wheels Gummies 100g | URL: https://retromagaz.com/product/cukerki-zuvalni-hot-wheels-gummies-100g
+[2026-11-05 18:00:28] Немає SKU: Шоколадне Яйце Kinder GranSurprise Hot Wheels 150g | URL: https://retromagaz.com/product/sokoladne-iaice-kinder-gransurprise-hot-wheels-150g
+[2026-11-05 18:00:55] Немає SKU: Машинка Велике Місто Matchbox 2019 Subaru Forester Off-Road 1:64 Blue | URL: https://retromagaz.com/product/masinka-velike-misto-matchbox-2019-subaru-forester-off-road-164-blue
+[2026-11-05 18:00:55] Немає SKU: Машинка Велике Місто Matchbox Audi R8 Super Chase Showroom 1:64 Orange | URL: https://retromagaz.com/product/masinka-velike-misto-matchbox-audi-r8-super-chase-showroom-164-orange
+[2026-11-05 18:02:58] Помилка на сторінці https://retromagaz.com/hot-wheels?page=121: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))

@@ -88188,3 +88188,5 @@
 [2026-11-08 21:56:06] Помилка на сторінці https://retromagaz.com/product/masinka-premium-2st-hot-wheels-mclaren-formula-1-team-164-jmm91-orange: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
 [2026-11-08 21:56:44] Немає SKU: Напій Hot Wheels Race Drink 250ml | URL: https://retromagaz.com/product/napiy-hot-wheels-race-drink-tutti-frutti-250ml
 [2026-11-08 21:57:03] Помилка на сторінці https://retromagaz.com/product/tematicna-masinka-matchbox-2022-bentley-batur-moving-parts-164-jhv34-green: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
+[2026-11-09 01:30:12] Помилка на сторінці https://retromagaz.com/product/mashinka-premium-hot-wheels-87-ford-sierra-cosworth-canyon-warriors-fpy86hkc54-white-noviy: HTTPSConnectionPool(host='retromagaz.com', port=443): Read timed out. (read timeout=10)
+[2026-11-09 01:33:09] Немає SKU: Машинка Велике Місто Matchbox 1994 Lexus LS 400 Highway 1:64 Black | URL: https://retromagaz.com/product/masinka-velike-misto-matchbox-1994-lexus-ls-400-highway-164-black
